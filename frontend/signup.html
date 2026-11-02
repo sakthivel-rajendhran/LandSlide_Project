@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlopeGuard — Authorized Registration</title>
+  <meta name="description" content="Create an authorized landslide risk monitoring account for the North Eastern Region of India.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C7F464'/><polygon points='4,32 16,14 24,32' fill='%23294B32'/></svg>">
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <style>
+    /* Brand Header in Signup Form Pane */
+    .login-brand-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+    }
+    .login-brand-header .logo-icon-svg {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+    .login-brand-heading-text {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--lw-text, #46566A);
+      letter-spacing: -0.02em;
+    }
+    .login-brand-heading-text span {
+      color: var(--lw-cta, #C96F4F);
+    }
+
+    /* Error Banner */
+    .auth-error-banner {
+      display: none;
+      padding: 10px 14px;
+      background: rgba(184, 75, 41, 0.1);
+      border: 1px solid rgba(184, 75, 41, 0.3);
+      border-radius: var(--lw-r-sm, 6px);
+      color: #8F2B14;
+      font-size: 0.8125rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Form Fields and Labels */
+    .login-form-pane {
+      padding: 2.25rem 2.25rem;
+    }
+    .login-header-group {
+      margin-bottom: 1.5rem;
+    }
+    .login-subtitle {
+      margin-bottom: 0;
+    }
+    .login-field {
+      margin-bottom: 1.15rem;
+    }
+    .login-field-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--lw-text, #46566A);
+      margin-bottom: 0.4rem;
+    }
+    .login-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .login-field-icon {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      color: var(--lw-text-muted, #72826F);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .login-input {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.75rem;
+      border-radius: var(--lw-r-sm, 6px);
+      background: #FFFFFF;
+      border: 1px solid var(--lw-border, #D9C9B2);
+      color: var(--lw-text, #46566A);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: all var(--transition-fast, 0.15s ease);
+    }
+    .login-input::placeholder {
+      color: var(--lw-text-muted, #72826F);
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: var(--lw-cta, #C96F4F);
+      box-shadow: 0 0 0 2px rgba(201, 111, 79, 0.2);
+      background: #FFFFFF;
+    }
+    .login-input.has-toggle {
+      padding-right: 2.85rem;
+    }
+    .login-input.has-error {
+      border-color: #B84B29;
+      box-shadow: 0 0 0 2px rgba(184, 75, 41, 0.2);
+    }
+
+    /* Password show/hide toggle buttons */
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--lw-text-muted, #72826F);
+      cursor: pointer;
+      padding: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: color var(--transition-fast), background-color var(--transition-fast);
+      z-index: 2;
+    }
+    .password-toggle-btn:hover {
+      color: var(--lw-cta, #C96F4F);
+      background: rgba(201, 111, 79, 0.08);
+    }
+    .password-toggle-btn:focus-visible {
+      outline: 2px solid var(--lw-cta, #C96F4F);
+      outline-offset: 1px;
+    }
+
+    /* Password strength meter */
+    .strength-meter-bar {
+      height: 4px;
+      width: 100%;
+      background: rgba(46, 58, 47, 0.08);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .strength-meter-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    .strength-text {
+      font-size: 0.6875rem;
+      color: var(--lw-text-muted, #72826F);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Primary registration button */
+    .btn-sign-in {
+      background-color: var(--lw-cta, #C96F4F);
+      color: var(--lw-on-cta, #FFFFFF);
+      font-weight: 700;
+      border: 1px solid var(--lw-cta, #C96F4F);
+      box-shadow: 0 4px 14px rgba(201, 111, 79, 0.25);
+      width: 100%;
+      margin-top: 0.5rem;
+      border-radius: var(--lw-r-sm, 6px);
+    }
+    .btn-sign-in:hover:not(:disabled) {
+      background-color: var(--lw-cta-hover, #B85E3E);
+      border-color: var(--lw-cta-hover, #B85E3E);
+      box-shadow: 0 6px 20px rgba(201, 111, 79, 0.35);
+    }
+    .btn-sign-in:disabled {
+      background-color: #D9C9B2;
+      border-color: #D9C9B2;
+      color: #72826F;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #FFFFFF;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Google Button with light background and clear readable typography */
+    .btn-google {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--lw-r-sm, 6px);
+      background: #FFFFFF !important;
+      border: 1px solid #DADCE0 !important;
+      color: #3C4043 !important;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .btn-google:hover {
+      background: #F8F9FA !important;
+      color: #202124 !important;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      transform: translateY(-1px);
+    }
+    .btn-google:active {
+      background: #EEEEEE !important;
+      transform: translateY(0);
+    }
+    .btn-google:focus-visible {
+      outline: 2px solid var(--lw-cta, #C96F4F);
+      outline-offset: 2px;
+    }
+
+    /* Footer beneath registration */
+    .login-signup-footer {
+      text-align: center;
+      margin-top: 1.35rem;
+      font-size: 0.875rem;
+      color: var(--lw-text-secondary, #445345);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+    }
+    .login-signup-footer .signup-link {
+      color: var(--lw-cta, #C96F4F);
+      font-weight: 700;
+      text-decoration: none;
+      transition: color var(--transition-fast), text-decoration var(--transition-fast);
+    }
+    .login-signup-footer .signup-link:hover {
+      color: var(--lw-cta-hover, #B85E3E);
+      text-decoration: underline;
+    }
+
+    /* Location Section Styles */
+    .location-capture-section {
+      background: var(--lw-bg, #F8F6EE);
+      border: 1px solid var(--lw-border, #D9C9B2);
+      border-radius: 6px;
+      padding: 1.15rem;
+      margin-bottom: 1.25rem;
+    }
+    .location-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.35rem;
+    }
+    .location-section-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--lw-text, #46566A);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .location-required-badge,
+    .location-optional-badge {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .location-required-badge {
+      background: rgba(201, 111, 79, 0.1);
+      color: var(--lw-cta, #C96F4F);
+      border: 1px solid rgba(201, 111, 79, 0.3);
+    }
+    .location-optional-badge {
+      background: rgba(107, 127, 91, 0.1);
+      color: var(--lw-secondary, #6B7F5B);
+      border: 1px solid rgba(107, 127, 91, 0.3);
+    }
+    .location-supporting-text {
+      font-size: 0.8125rem;
+      color: var(--lw-text-secondary, #445345);
+      line-height: 1.45;
+      margin-bottom: 0.85rem;
+    }
+    .btn-location-capture {
+      width: 100%;
+      background: rgba(201, 111, 79, 0.08);
+      border: 1px solid var(--lw-cta, #C96F4F);
+      color: var(--lw-cta, #C96F4F);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .btn-location-capture:hover:not(:disabled) {
+      background: var(--lw-cta, #C96F4F);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(201, 111, 79, 0.2);
+    }
+    .btn-location-capture:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .location-status-bar {
+      margin-top: 0.75rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.775rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      line-height: 1.35;
+    }
+    .location-status-bar.status-default {
+      background: var(--lw-bg, #F8F6EE);
+      color: var(--lw-text-secondary, #445345);
+      border: 1px solid var(--lw-border, #D9C9B2);
+    }
+    .location-status-bar.status-pending {
+      background: rgba(160, 126, 42, 0.12);
+      color: var(--lw-risk-mod-fg, #59440D);
+      border: 1px solid rgba(160, 126, 42, 0.3);
+    }
+    .location-status-bar.status-success {
+      background: rgba(74, 122, 85, 0.12);
+      color: var(--lw-risk-low-fg, #1C4D26);
+      border: 1px solid rgba(74, 122, 85, 0.3);
+    }
+    .location-status-bar.status-error {
+      background: rgba(184, 75, 41, 0.12);
+      color: var(--lw-risk-crit-fg, #8F2B14);
+      border: 1px solid rgba(184, 75, 41, 0.3);
+    }
+    .location-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-default .location-status-dot { background: #72826F; }
+    .status-pending .location-status-dot { background: var(--lw-risk-mod); animation: pulse 1.2s infinite; }
+    .status-success .location-status-dot { background: var(--lw-risk-low); }
+    .status-error .location-status-dot { background: var(--lw-risk-crit); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .location-error-guidance {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #8F2B14;
+      line-height: 1.4;
+      background: rgba(184, 75, 41, 0.08);
+      border: 1px dashed rgba(184, 75, 41, 0.25);
+      border-radius: 4px;
+      padding: 0.5rem 0.65rem;
+    }
+
+    /* Confirmation Box */
+    .location-confirm-box {
+      display: none;
+      margin-top: 0.85rem;
+      background: var(--lw-bg, #F8F6EE);
+      border: 1px solid var(--lw-border, #D9C9B2);
+      border-radius: 6px;
+      padding: 0.85rem;
+    }
+    .location-confirm-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--lw-border, #D9C9B2);
+    }
+    .location-place-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--lw-cta, #C96F4F);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .location-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem 0.75rem;
+      font-size: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .location-detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .location-detail-label {
+      color: var(--lw-text-muted, #72826F);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .location-detail-val {
+      color: var(--lw-text, #46566A);
+      font-family: inherit;
+      font-weight: 600;
+    }
+    .btn-refresh-loc {
+      background: #FFFFFF;
+      border: 1px solid var(--lw-border, #D9C9B2);
+      color: var(--lw-text-secondary, #445345);
+      font-size: 0.725rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .btn-refresh-loc:hover {
+      border-color: var(--lw-cta, #C96F4F);
+      color: var(--lw-cta, #C96F4F);
+    }
+    .location-consent-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--lw-text-secondary, #445345);
+      cursor: pointer;
+      margin-bottom: 0.65rem;
+      line-height: 1.35;
+    }
+    .location-consent-check input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: var(--lw-cta, #C96F4F);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .location-disclaimer-notice {
+      font-size: 0.7rem;
+      color: var(--lw-text-muted, #72826F);
+      line-height: 1.4;
+      background: #FFFFFF;
+      border-left: 2px solid var(--lw-cta, #C96F4F);
+      padding: 5px 8px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    @media (max-width: 600px) {
+      .login-form-pane {
+        padding: 1.75rem 1.25rem;
+      }
+      .login-container-card {
+        margin: 0.75rem 0;
+      }
+      .location-details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 400px) {
+      .login-body {
+        padding: 1rem 0.5rem;
+      }
+      .login-form-pane {
+        padding: 1.25rem 0.85rem;
+      }
+      .login-title {
+        font-size: 1.45rem;
+      }
+    }
+  
+    /* Registration Role Tabs */
+    .signup-role-tabs {
+      display: flex;
+      background: var(--lw-bg, #F8F6EE);
+      border: 1px solid var(--lw-border, #D9C9B2);
+      border-radius: var(--lw-r-sm, 6px);
+      padding: 4px;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+    .signup-tab-btn {
+      flex: 1;
+      padding: 0.65rem 0.75rem;
+      border: none;
+      background: transparent;
+      color: var(--lw-text-secondary, #445345);
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .signup-tab-btn.active {
+      background: #FFFFFF;
+      color: var(--lw-text, #46566A);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--lw-border, #D9C9B2);
+    }
+    .signup-tab-btn:hover:not(.active) {
+      color: var(--lw-cta, #C96F4F);
+    }
+
+    /* Capabilities Checkbox Grid */
+    .rt-capabilities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+    .rt-cap-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.75rem;
+      background: #FFFFFF;
+      border: 1px solid var(--lw-border, #D9C9B2);
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      color: var(--lw-text, #46566A);
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+    }
+    .rt-cap-item:hover {
+      border-color: var(--lw-cta, #C96F4F);
+    }
+    .rt-cap-item input[type="checkbox"] {
+      accent-color: var(--lw-cta, #C96F4F);
+      cursor: pointer;
+    }
+
+    /* Form Section Dividers */
+    .rt-section-header {
+      font-size: 0.8125rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--lw-cta, #C96F4F);
+      margin: 1.5rem 0 0.75rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--lw-border, #D9C9B2);
+      padding-bottom: 0.35rem;
+    }
+
+    /* Two Column Form Row */
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    @media (max-width: 600px) {
+      .form-row-2col {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+
+    /* Success Registration Card */
+    .registration-success-card {
+      display: none;
+      background: #FFFFFF;
+      border: 1px solid rgba(74, 122, 85, 0.3);
+      border-radius: 6px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .registration-success-card h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1C4D26;
+      margin-bottom: 0.5rem;
+    }
+    .registration-success-card p {
+      font-size: 0.875rem;
+      color: var(--lw-text-secondary, #445345);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+</style>
+</head>
+<body class="login-body">
+
+  <main class="login-container-card">
+    <!-- Left Visual Column (Desktop) -->
+    <div class="login-visual-pane">
+      <div class="login-visual-content">
+        <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+          <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+          <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+          <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+          <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+        </svg>
+
+        <h1 class="login-brand-title">Slope<span>Guard</span></h1>
+        <p class="login-visual-tagline">North Eastern Region (NER) Landslide Intelligence</p>
+        <p class="login-visual-subtext">Join authorized personnel and community monitors safeguarding Himalayan slopes.</p>
+      </div>
+    </div>
+
+    <!-- Right Signup Form Column -->
+    <div class="login-form-pane">
+      <a href="login.html" class="back-to-home-link" aria-label="Return to Sign In">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Back to Login</span>
+      </a>
+
+      <div class="login-header-group">
+        <a href="index.html" class="login-brand-header" style="text-decoration: none;" aria-label="SlopeGuard Home">
+          <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+            <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+            <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+            <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+            <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+          </svg>
+          <span class="login-brand-heading-text">Slope<span>Guard</span></span>
+        </a>
+        <h2 class="login-title">Authorized Registration</h2>
+        <p class="login-subtitle">Create your personal or departmental monitoring account</p>
+      </div>
+
+      <!-- Error Banner -->
+      
+      <!-- Public Registration Option Switcher -->
+      <div class="signup-role-tabs" role="tablist">
+        <button type="button" class="signup-tab-btn active" id="tabCitizen" role="tab" aria-selected="true">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Citizen Registration
+        </button>
+        <button type="button" class="signup-tab-btn" id="tabRescue" role="tab" aria-selected="false">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          Rescue Team Registration
+        </button>
+      </div>
+
+      <!-- Success Notification Card for Rescue Team -->
+      <div id="rescueSuccessCard" class="registration-success-card">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(74, 122, 85, 0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: #1C4D26;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h3 id="rescueSuccessTitle">Registration Submitted Successfully</h3>
+        <p id="rescueSuccessMessage">Your Rescue Team registration has been recorded with status <strong>PENDING</strong>. Before receiving active missions, your team credentials and location will be reviewed and approved by the Disaster Management Officer (DMO).</p>
+        <a href="login.html" class="btn-location-capture" style="display: inline-flex; text-decoration: none; width: auto; padding: 0.75rem 1.75rem;">Return to Login</a>
+      </div>
+
+      <div id="signupErrorBanner" class="auth-error-banner" role="alert" aria-live="polite"></div>
+
+      <!-- Registration Form -->
+      <form id="signupForm" action="javascript:void(0);" novalidate>
+        <!-- 1. Full Name -->
+        <div class="login-field">
+          <label for="fullNameInput" class="login-field-label">Full Name</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <input 
+              type="text" 
+              id="fullNameInput" 
+              name="fullName" 
+              class="login-input" 
+              placeholder="e.g. Rahul Barman" 
+              required 
+              autocomplete="name" 
+            />
+          </div>
+        </div>
+
+        <!-- 2. Email Address -->
+        <div class="login-field">
+          <label for="emailInput" class="login-field-label">Official Email Address</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <input 
+              type="email" 
+              id="emailInput" 
+              name="email" 
+              class="login-input" 
+              placeholder="officer@disastermgmt.gov.in" 
+              required 
+              autocomplete="email" 
+            />
+          </div>
+        </div>
+
+        <!-- 3. Assigned District / Jurisdiction -->
+        <div class="login-field">
+          <label for="districtInput" class="login-field-label">Assigned District / Jurisdiction</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <input 
+              type="text" 
+              id="districtInput" 
+              name="district" 
+              class="login-input" 
+              placeholder="e.g. East Khasi Hills, Meghalaya" 
+            />
+          </div>
+        </div>
+
+        <!-- 4. Security Password -->
+        <div class="login-field">
+          <label for="passwordInput" class="login-field-label">Security Password</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <input 
+              type="password" 
+              id="passwordInput" 
+              name="password" 
+              class="login-input has-toggle" 
+              placeholder="Minimum 8 characters" 
+              required 
+              autocomplete="new-password" 
+            />
+            <button type="button" class="password-toggle-btn" id="togglePasswordBtn" aria-label="Show password" title="Toggle password visibility">
+              <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg id="eyeOffIcon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+          <div class="strength-meter-bar">
+            <div id="strengthFill" class="strength-meter-fill"></div>
+          </div>
+          <span id="strengthText" class="strength-text">Password strength: none</span>
+        </div>
+
+        <!-- 5. Confirm Password -->
+        <div class="login-field">
+          <label for="confirmPasswordInput" class="login-field-label">Confirm Password</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <input 
+              type="password" 
+              id="confirmPasswordInput" 
+              name="confirmPassword" 
+              class="login-input has-toggle" 
+              placeholder="Re-enter password" 
+              required 
+              autocomplete="new-password" 
+            />
+            <button type="button" class="password-toggle-btn" id="toggleConfirmPasswordBtn" aria-label="Show confirm password" title="Toggle password visibility">
+              <svg id="eyeIconConfirm" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg id="eyeOffIconConfirm" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Current Location (Optional on Desktop & Mobile — Explicit Click Required) -->
+        <div class="location-capture-section" id="locationCaptureSection">
+          <div class="location-section-header">
+            <label class="location-section-title">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--color-primary-lime, #C7F464);">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              Current Location
+            </label>
+            <span class="location-optional-badge">Optional</span>
+          </div>
+
+          <p class="location-supporting-text">
+            Allow SlopeGuard to access your current location so we can assess landslide risks in your area and support geographically relevant monitoring. (Optional — you can register without granting location and provide it anytime later in Settings).
+          </p>
+
+          <button type="button" class="btn-location-capture" id="btnDetectLocation">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" stroke-width="2"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+            </svg>
+            <span id="btnDetectLocationText">Use My Current Location</span>
+          </button>
+
+          <!-- Location Status Area -->
+          <div class="location-status-bar status-default" id="locationStatusBar">
+            <span class="location-status-dot" id="locationStatusDot"></span>
+            <span id="locationStatusText">Location not selected</span>
+          </div>
+
+          <!-- Error / Permission Guidance -->
+          <div class="location-error-guidance" id="locationErrorGuidance"></div>
+
+          <!-- Compact Confirmation Panel -->
+          <div class="location-confirm-box" id="locationConfirmBox">
+            <div class="location-confirm-header">
+              <div class="location-place-title">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span id="locPlaceName">Detected Monitoring Point</span>
+              </div>
+              <button type="button" class="btn-refresh-loc" id="btnRefreshLocation" title="Recalibrate or refresh GPS coordinates">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Refresh Location
+              </button>
+            </div>
+
+            <div class="location-details-grid">
+              <div class="location-detail-item">
+                <span class="location-detail-label">Latitude</span>
+                <span class="location-detail-val" id="locLat">--</span>
+              </div>
+              <div class="location-detail-item">
+                <span class="location-detail-label">Longitude</span>
+                <span class="location-detail-val" id="locLng">--</span>
+              </div>
+              <div class="location-detail-item">
+                <span class="location-detail-label">GPS Accuracy</span>
+                <span class="location-detail-val" id="locAccuracy">--</span>
+              </div>
+              <div class="location-detail-item">
+                <span class="location-detail-label">Captured Timestamp</span>
+                <span class="location-detail-val" id="locTime">--</span>
+              </div>
+            </div>
+
+            <label class="location-consent-check">
+              <input type="checkbox" id="confirmLocationConsent" />
+              <span>I confirm this is my current monitoring location for landslide risk assessment.</span>
+            </label>
+
+            <div class="location-disclaimer-notice">
+              Your location will be used to support geographically relevant landslide-risk assessment. Location readings may be inaccurate, and risk results are estimates rather than guarantees of safety.
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-sign-in" id="submitBtn">
+          <span class="btn-spinner" id="btnSpinner" aria-hidden="true"></span>
+          <span id="submitBtnText">Create Monitoring Account</span>
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+
+        <!-- Separator OR -->
+        <div class="login-divider" style="display: flex; align-items: center; text-align: center; margin: 1.25rem 0; color: var(--lw-text-muted, #72826F); font-size: 0.8125rem; font-weight: 600;">
+          <span style="flex: 1; border-bottom: 1px solid var(--lw-border, #D9C9B2);"></span>
+          <span style="padding: 0 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">OR</span>
+          <span style="flex: 1; border-bottom: 1px solid var(--lw-border, #D9C9B2);"></span>
+        </div>
+
+        <!-- Continue with Google Button -->
+        <button type="button" class="btn-google" id="btnGoogleSignUp" aria-label="Continue with Google">
+          <svg class="google-icon-svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span id="googleSignUpBtnText">Continue with Google</span>
+        </button>
+      </form>
+
+      <!-- Dedicated Rescue Team Registration Form (Option B) -->
+      <form id="rescueTeamForm" action="javascript:void(0);" novalidate style="display: none;">
+        <div class="rt-section-header">1. Team & Organizational Information</div>
+
+        <div class="login-field">
+          <label for="rtTeamName" class="login-field-label">Official Team Name *</label>
+          <div class="login-input-wrapper">
+            <input type="text" id="rtTeamName" class="login-input" placeholder="e.g. SDRF Champhai Quick Response" required />
+          </div>
+        </div>
+
+        <div class="form-row-2col">
+          <div class="login-field">
+            <label for="rtCategory" class="login-field-label">Team Category *</label>
+            <div class="login-input-wrapper">
+              <select id="rtCategory" class="login-input" style="padding-left: 1rem;">
+                <option value="SDRF">SDRF (State Disaster Response)</option>
+                <option value="NDRF">NDRF (National Disaster Response)</option>
+                <option value="FIRE_AND_RESCUE">Fire & Emergency Services</option>
+                <option value="CIVIL_DEFENSE">Civil Defense Unit</option>
+                <option value="VOLUNTEER_SAR">Volunteer Search & Rescue</option>
+                <option value="MEDICAL_RESPONSE">Medical / First Aid Unit</option>
+              </select>
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="rtTeamSize" class="login-field-label">Team Size (Personnel) *</label>
+            <div class="login-input-wrapper">
+              <input type="number" id="rtTeamSize" class="login-input" min="1" max="150" value="8" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2col">
+          <div class="login-field">
+            <label for="rtLeader" class="login-field-label">Team Leader Name *</label>
+            <div class="login-input-wrapper">
+              <input type="text" id="rtLeader" class="login-input" placeholder="e.g. Capt. Zothan Sanga" required />
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="rtContact" class="login-field-label">Contact Phone Number *</label>
+            <div class="login-input-wrapper">
+              <input type="tel" id="rtContact" class="login-input" placeholder="e.g. 03831-234567" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2col">
+          <div class="login-field">
+            <label for="rtDistrict" class="login-field-label">Operating District *</label>
+            <div class="login-input-wrapper">
+              <input type="text" id="rtDistrict" class="login-input" placeholder="e.g. Champhai" required />
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="rtRegion" class="login-field-label">Operating Region *</label>
+            <div class="login-input-wrapper">
+              <input type="text" id="rtRegion" class="login-input" placeholder="e.g. Mizoram Sector (NER)" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="rt-section-header">2. Base Location & GPS Coordinates</div>
+
+        <div class="login-field">
+          <label for="rtAddress" class="login-field-label">Base Headquarters Address *</label>
+          <div class="login-input-wrapper">
+            <input type="text" id="rtAddress" class="login-input" placeholder="e.g. Vengthlang North, Champhai, Mizoram" required />
+          </div>
+        </div>
+
+        <div class="form-row-2col">
+          <div class="login-field">
+            <label for="rtLat" class="login-field-label">Base Latitude (GPS) *</label>
+            <div class="login-input-wrapper">
+              <input type="number" step="0.0001" id="rtLat" class="login-input" placeholder="e.g. 23.4560" required />
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="rtLng" class="login-field-label">Base Longitude (GPS) *</label>
+            <div class="login-input-wrapper">
+              <input type="number" step="0.0001" id="rtLng" class="login-input" placeholder="e.g. 93.3280" required />
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="btnPinCurrentLocation" class="btn-location-capture" style="margin-bottom: 1.25rem;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+          Detect & Pin Current GPS Location
+        </button>
+
+        <div class="rt-section-header">3. Rescue Capabilities (Select all that apply)</div>
+        <div class="rt-capabilities-grid">
+          <label class="rt-cap-item">
+            <input type="checkbox" name="rtCaps" value="LANDSLIDE_RESCUE" checked />
+            <span>Landslide Rescue</span>
+          </label>
+          <label class="rt-cap-item">
+            <input type="checkbox" name="rtCaps" value="ROCKFALL_RESPONSE" checked />
+            <span>Rockfall Response</span>
+          </label>
+          <label class="rt-cap-item">
+            <input type="checkbox" name="rtCaps" value="ROAD_CLEARANCE" checked />
+            <span>Road Clearance</span>
+          </label>
+          <label class="rt-cap-item">
+            <input type="checkbox" name="rtCaps" value="EVACUATION_ASSISTANCE" checked />
+            <span>Evacuation Assistance</span>
+          </label>
+          <label class="rt-cap-item">
+            <input type="checkbox" name="rtCaps" value="FIRST_AID_MEDICAL" />
+            <span>First Aid / Medical</span>
+          </label>
+          <label class="rt-cap-item">
+            <input type="checkbox" name="rtCaps" value="SEARCH_AND_RESCUE" checked />
+            <span>Search and Rescue</span>
+          </label>
+        </div>
+
+        <div class="rt-section-header">4. Team Account Credentials</div>
+
+        <div class="login-field">
+          <label for="rtEmail" class="login-field-label">Official Team Login Email *</label>
+          <div class="login-input-wrapper">
+            <input type="email" id="rtEmail" class="login-input" placeholder="e.g. champhai.rescue@slopeguard.ner.gov.in" required />
+          </div>
+        </div>
+
+        <div class="form-row-2col">
+          <div class="login-field">
+            <label for="rtPassword" class="login-field-label">Password (Min. 8 chars) *</label>
+            <div class="login-input-wrapper">
+              <input type="password" id="rtPassword" class="login-input" placeholder="••••••••" required />
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="rtConfirmPassword" class="login-field-label">Confirm Password *</label>
+            <div class="login-input-wrapper">
+              <input type="password" id="rtConfirmPassword" class="login-input" placeholder="••••••••" required />
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(201, 111, 79, 0.08); border: 1px solid rgba(201, 111, 79, 0.3); border-radius: 6px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.8125rem; color: #8F2B14; line-height: 1.45;">
+          <strong>Notice:</strong> Rescue Team accounts are initially created in <strong>PENDING</strong> status. An authorized Disaster Management Officer (DMO) must approve your team before it can be activated to receive real-time incident dispatches.
+        </div>
+
+        <button type="submit" id="btnSubmitRescueTeam" class="btn-primary" style="width: 100%; padding: 0.85rem; font-weight: 800; border-radius: 4px;">
+          Submit Rescue Team Registration
+        </button>
+      </form>
+
+
+      <div class="login-signup-footer">
+        <span>Already registered?</span>
+        <a href="login.html" class="signup-link">Sign in here</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Core JavaScript Services -->
+  <script src="js/core/config.js"></script>
+  <script src="js/core/content.js"></script>
+  <script src="js/core/format.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/connectivity.js"></script>
+  <script src="js/core/api.js"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/core/ui.js"></script>
+  <script src="js/services/regions-service.js"></script>
+
+  <script>
+    function getSafeDestination(user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const next = urlParams.get("next") || urlParams.get("returnUrl");
+      let u = user;
+      if (!u) {
+        try {
+          const raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+          u = raw ? JSON.parse(raw) : null;
+        } catch(e) {}
+      }
+      const role = (u?.role || "").toUpperCase();
+      const isRescue = role === "OFFICER" || role === "RESCUE_FORCE";
+      const isAdmin = role === "ADMIN";
+
+      const defaultDest = isAdmin ? "admin/dashboard.html" : (isRescue ? "rescue-dashboard.html" : "dashboard.html");
+
+      if (!next) return defaultDest;
+
+      try {
+        const decoded = decodeURIComponent(next).trim();
+        // Prevent open redirect
+        if (decoded.startsWith("//") || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(decoded)) {
+          return defaultDest;
+        }
+        // Prevent redirect loops
+        if (decoded.includes("login.html") || decoded.includes("signup.html") || decoded.includes("#home") || decoded === "index.html") {
+          return defaultDest;
+        }
+
+        // Strict role-based destination enforcement
+        if (isAdmin) {
+          if (decoded.includes("admin/")) return decoded;
+          return "admin/dashboard.html";
+        }
+        if (isRescue) {
+          if (decoded.includes("rescue-dashboard")) return decoded;
+          return "rescue-dashboard.html";
+        }
+        // Citizen role
+        if (decoded.includes("admin/") || decoded.includes("rescue-dashboard")) {
+          return "dashboard.html";
+        }
+        return decoded;
+      } catch (e) {
+        return defaultDest;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Google OAuth Sign Up Trigger
+      const btnGoogleSignUp = document.getElementById("btnGoogleSignUp");
+      const googleSignUpBtnText = document.getElementById("googleSignUpBtnText");
+      if (btnGoogleSignUp) {
+        btnGoogleSignUp.addEventListener("click", () => {
+          if (btnGoogleSignUp.disabled) return;
+          btnGoogleSignUp.disabled = true;
+          if (googleSignUpBtnText) googleSignUpBtnText.textContent = "Redirecting to Google...";
+          window.LW.auth.initiateGoogleOAuth(window.location.origin + "/login.html");
+        });
+      }
+
+      const form = document.getElementById("signupForm");
+      const errorBanner = document.getElementById("signupErrorBanner");
+      const fullNameInput = document.getElementById("fullNameInput");
+      const emailInput = document.getElementById("emailInput");
+      const districtInput = document.getElementById("districtInput");
+      const passwordInput = document.getElementById("passwordInput");
+      const confirmInput = document.getElementById("confirmPasswordInput");
+      const strengthFill = document.getElementById("strengthFill");
+      const strengthText = document.getElementById("strengthText");
+      const submitBtn = document.getElementById("submitBtn");
+      const submitBtnText = document.getElementById("submitBtnText");
+      const btnSpinner = document.getElementById("btnSpinner");
+
+      // Password toggle controls
+      const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+      const eyeIcon = document.getElementById("eyeIcon");
+      const eyeOffIcon = document.getElementById("eyeOffIcon");
+
+      const toggleConfirmPasswordBtn = document.getElementById("toggleConfirmPasswordBtn");
+      const eyeIconConfirm = document.getElementById("eyeIconConfirm");
+      const eyeOffIconConfirm = document.getElementById("eyeOffIconConfirm");
+
+      function setupPasswordToggle(btn, input, eye, eyeOff) {
+        btn.addEventListener("click", () => {
+          const isText = input.type === "text";
+          input.type = isText ? "password" : "text";
+          eye.style.display = isText ? "block" : "none";
+          eyeOff.style.display = isText ? "none" : "block";
+          btn.setAttribute("aria-label", isText ? "Show password" : "Hide password");
+        });
+      }
+      setupPasswordToggle(togglePasswordBtn, passwordInput, eyeIcon, eyeOffIcon);
+      setupPasswordToggle(toggleConfirmPasswordBtn, confirmInput, eyeIconConfirm, eyeOffIconConfirm);
+
+      // Preserve return parameter if user switches back to login
+      const urlParams = new URLSearchParams(window.location.search);
+      const nextParam = urlParams.get("next") || urlParams.get("returnUrl");
+      if (nextParam) {
+        document.querySelectorAll('a[href="login.html"]').forEach(a => {
+          a.href = `login.html?next=${encodeURIComponent(nextParam)}`;
+        });
+      }
+
+      function showError(msg) {
+        errorBanner.textContent = msg;
+        errorBanner.style.display = "block";
+      }
+
+      function clearError() {
+        errorBanner.style.display = "none";
+        errorBanner.textContent = "";
+      }
+
+      // Password strength meter
+      passwordInput.addEventListener("input", () => {
+        clearError();
+        const val = passwordInput.value;
+        let score = 0;
+        if (val.length >= 8) score += 25;
+        if (val.length >= 12) score += 25;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score += 25;
+        if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score += 25;
+
+        strengthFill.style.width = score + "%";
+        if (val.length === 0) {
+          strengthFill.style.width = "0%";
+          strengthText.textContent = "Password strength: none";
+        } else if (score <= 25) {
+          strengthFill.style.backgroundColor = "var(--color-risk-severe, #F07878)";
+          strengthText.textContent = "Password strength: Weak (min 8 characters)";
+        } else if (score <= 50) {
+          strengthFill.style.backgroundColor = "var(--color-risk-moderate, #E8D17A)";
+          strengthText.textContent = "Password strength: Moderate";
+        } else if (score <= 75) {
+          strengthFill.style.backgroundColor = "var(--color-risk-low, #8FD694)";
+          strengthText.textContent = "Password strength: Good";
+        } else {
+          strengthFill.style.backgroundColor = "var(--color-primary, #C7F464)";
+          strengthText.textContent = "Password strength: Strong";
+        }
+      });
+
+      // Location Elements & State
+      const btnDetectLocation = document.getElementById("btnDetectLocation");
+      const btnDetectLocationText = document.getElementById("btnDetectLocationText");
+      const locationStatusBar = document.getElementById("locationStatusBar");
+      const locationStatusText = document.getElementById("locationStatusText");
+      const locationErrorGuidance = document.getElementById("locationErrorGuidance");
+      const locationConfirmBox = document.getElementById("locationConfirmBox");
+      const locPlaceName = document.getElementById("locPlaceName");
+      const locLat = document.getElementById("locLat");
+      const locLng = document.getElementById("locLng");
+      const locAccuracy = document.getElementById("locAccuracy");
+      const locTime = document.getElementById("locTime");
+      const btnRefreshLocation = document.getElementById("btnRefreshLocation");
+      const confirmLocationConsent = document.getElementById("confirmLocationConsent");
+
+      let capturedLocation = null;
+
+      function setLocationState(state, message, guidanceText = "") {
+        locationStatusBar.className = "location-status-bar " + (
+          state === "success" ? "status-success" :
+          state === "pending" ? "status-pending" :
+          state === "error" ? "status-error" : "status-default"
+        );
+        locationStatusText.textContent = message;
+        if (guidanceText) {
+          locationErrorGuidance.textContent = guidanceText;
+          locationErrorGuidance.style.display = "block";
+        } else {
+          locationErrorGuidance.style.display = "none";
+          locationErrorGuidance.textContent = "";
+        }
+      }
+
+      async function requestCurrentLocation() {
+        clearError();
+        if (!navigator.geolocation) {
+          setLocationState("error", "Location unavailable", "Your browser does not support Geolocation. Please use an updated modern browser with location capabilities.");
+          return;
+        }
+
+        btnDetectLocation.disabled = true;
+        btnDetectLocationText.textContent = "Requesting permission...";
+        setLocationState("pending", "Requesting permission");
+
+        const geoOptions = {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        };
+
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            btnDetectLocation.disabled = false;
+            btnDetectLocationText.textContent = "Use My Current Location";
+
+            const coords = position.coords;
+            const lat = coords.latitude;
+            const lng = coords.longitude;
+            const accuracy = coords.accuracy || 20;
+
+            // Validate geographic ranges
+            if (typeof lat !== "number" || isNaN(lat) || lat < -90 || lat > 90 ||
+                typeof lng !== "number" || isNaN(lng) || lng < -180 || lng > 180) {
+              setLocationState("error", "Location unavailable", "Device returned invalid geographic coordinates.");
+              return;
+            }
+
+            // Accuracy check: Geospatial landslide slope analysis requires sensible accuracy (<= 2500m)
+            if (accuracy > 2500) {
+              setLocationState("error", "Location accuracy insufficient", `Reported GPS accuracy is ±${Math.round(accuracy)}m (threshold is ±2500m). Please move outdoors or enable WiFi/cellular location and retry.`);
+              return;
+            }
+
+            setLocationState("pending", "Detecting location");
+
+            const capturedAtIso = new Date().toISOString();
+            let placeName = "North Eastern Region Corridor";
+
+            // Reverse geocoding attempt (OSM Nominatim) with 2500ms timeout
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 2500);
+              const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=14`;
+              const resp = await fetch(url, { signal: controller.signal, headers: { "Accept": "application/json" } });
+              clearTimeout(timeoutId);
+              if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.address) {
+                  const addr = data.address;
+                  const locality = addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.city || addr.county || "";
+                  const districtOrState = addr.state_district || addr.state || "";
+                  placeName = [locality, districtOrState].filter(Boolean).join(", ") || (data.display_name ? data.display_name.split(",").slice(0, 3).join(",") : placeName);
+                }
+              }
+            } catch (err) {
+              // Graceful fallback to nearest region from database
+              try {
+                if (window.LW && window.LW.regionsDatabase) {
+                  const list = window.LW.regionsDatabase.slice().sort((a, b) => {
+                    const d1 = Math.hypot(a.lat - lat, a.lng - lng);
+                    const d2 = Math.hypot(b.lat - lat, b.lng - lng);
+                    return d1 - d2;
+                  });
+                  if (list.length > 0) {
+                    placeName = `${list[0].district}, ${list[0].state}`;
+                  }
+                }
+              } catch (e) {}
+            }
+
+            capturedLocation = {
+              latitude: parseFloat(lat.toFixed(6)),
+              longitude: parseFloat(lng.toFixed(6)),
+              accuracyMeters: Math.round(accuracy),
+              capturedAt: capturedAtIso,
+              source: "browser_geolocation",
+              resolvedPlaceName: placeName,
+              citizenConfirmedAt: capturedAtIso
+            };
+
+            // Update UI elements
+            locPlaceName.textContent = placeName;
+            locLat.textContent = capturedLocation.latitude.toFixed(5) + "°";
+            locLng.textContent = capturedLocation.longitude.toFixed(5) + "°";
+            locAccuracy.textContent = "±" + capturedLocation.accuracyMeters + " m";
+            locTime.textContent = new Date(capturedLocation.capturedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            confirmLocationConsent.checked = true;
+
+            locationConfirmBox.style.display = "block";
+            setLocationState("success", "Location detected successfully");
+          },
+          (err) => {
+            btnDetectLocation.disabled = false;
+            btnDetectLocationText.textContent = "Use My Current Location";
+            capturedLocation = null;
+            locationConfirmBox.style.display = "none";
+
+            if (err.code === 1) { // PERMISSION_DENIED
+              setLocationState(
+                "error",
+                "Permission denied (Registration still available)",
+                "Location access was denied. You can continue and complete registration without location, or click your browser address bar permissions icon to allow location and click 'Use My Current Location' to retry."
+              );
+            } else if (err.code === 2) { // POSITION_UNAVAILABLE
+              setLocationState(
+                "error",
+                "Location unavailable (Registration still available)",
+                "Unable to determine geographic location. You can complete registration now and add or update your location later in Settings."
+              );
+            } else if (err.code === 3) { // TIMEOUT
+              setLocationState(
+                "error",
+                "Location request timed out",
+                "Satellite/network location lookup timed out. You can retry or complete registration without location."
+              );
+            } else {
+              setLocationState("error", "Location unavailable", err.message || "An unexpected error occurred while requesting location. You may complete registration without location.");
+            }
+          },
+          geoOptions
+        );
+      }
+
+      btnDetectLocation.addEventListener("click", requestCurrentLocation);
+      btnRefreshLocation.addEventListener("click", requestCurrentLocation);
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const fullName = fullNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const district = districtInput.value.trim() || (capturedLocation && capturedLocation.resolvedPlaceName ? capturedLocation.resolvedPlaceName.split(",")[0].trim() : "NER Command");
+        const password = passwordInput.value;
+        const confirmPassword = confirmInput.value;
+
+        if (!fullName) {
+          showError("Please enter your full name.");
+          fullNameInput.focus();
+          return;
+        }
+
+        if (fullName.length < 2) {
+          showError("Full name must be at least 2 characters.");
+          fullNameInput.focus();
+          return;
+        }
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showError("Please enter a valid official email address.");
+          emailInput.focus();
+          return;
+        }
+
+        if (!password || password.length < 8) {
+          showError("Security password must be at least 8 characters long.");
+          passwordInput.focus();
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showError("Passwords do not match. Please verify your entries.");
+          confirmInput.focus();
+          return;
+        }
+
+        // Optional Location Validation:
+        // Desktop and Mobile users can register freely without location.
+        // If a location was captured, validate coordinates and confirmation consent.
+        if (capturedLocation) {
+          if (typeof capturedLocation.latitude !== "number" || typeof capturedLocation.longitude !== "number" ||
+              isNaN(capturedLocation.latitude) || isNaN(capturedLocation.longitude)) {
+            showError("Invalid location coordinates. Please refresh location or proceed without location.");
+            return;
+          }
+          if (!confirmLocationConsent.checked) {
+            showError("Please confirm your detected location by checking the confirmation box, or uncheck to proceed without location.");
+            confirmLocationConsent.focus();
+            return;
+          }
+          capturedLocation.citizenConfirmedAt = new Date().toISOString();
+        }
+
+        submitBtn.disabled = true;
+        btnSpinner.style.display = "inline-block";
+        submitBtnText.textContent = capturedLocation ? "Creating Account & Analyzing Risk..." : "Creating Account...";
+
+        try {
+          const authService = window.LW.authService || window.LW.auth;
+          const user = await authService.register({
+            fullName,
+            email,
+            password,
+            district,
+            location: capturedLocation || null
+          });
+          
+          if (window.LW.ui?.toast) {
+            if (capturedLocation) {
+              window.LW.ui.toast("Account registered with verified location! Geotechnical assessment initiated...", "success");
+            } else {
+              window.LW.ui.toast("Account created successfully! Navigating to your monitoring dashboard...", "success");
+            }
+          }
+          const destination = getSafeDestination(user);
+          setTimeout(() => {
+            window.location.replace(destination);
+          }, 450);
+        } catch (err) {
+          const msg = err.message || (typeof err === "string" ? err : "Registration failed. Please check your details and try again.");
+          showError(msg);
+          submitBtn.disabled = false;
+          btnSpinner.style.display = "none";
+          submitBtnText.textContent = "Create Monitoring Account";
+        }
+      };
+
+      // Tab switching between Citizen and Rescue Team
+      const tabCitizen = document.getElementById("tabCitizen");
+      const tabRescue = document.getElementById("tabRescue");
+      const citizenForm = document.getElementById("signupForm");
+      const rescueForm = document.getElementById("rescueTeamForm");
+      const rescueSuccessCard = document.getElementById("rescueSuccessCard");
+
+      if (tabCitizen && tabRescue) {
+        tabCitizen.addEventListener("click", () => {
+          tabCitizen.classList.add("active");
+          tabCitizen.setAttribute("aria-selected", "true");
+          tabRescue.classList.remove("active");
+          tabRescue.setAttribute("aria-selected", "false");
+          citizenForm.style.display = "block";
+          rescueForm.style.display = "none";
+          if (rescueSuccessCard) rescueSuccessCard.style.display = "none";
+          clearError();
+        });
+
+        tabRescue.addEventListener("click", () => {
+          tabRescue.classList.add("active");
+          tabRescue.setAttribute("aria-selected", "true");
+          tabCitizen.classList.remove("active");
+          tabCitizen.setAttribute("aria-selected", "false");
+          rescueForm.style.display = "block";
+          citizenForm.style.display = "none";
+          if (rescueSuccessCard) rescueSuccessCard.style.display = "none";
+          clearError();
+        });
+      }
+
+      // Pin location for Rescue Team
+      const btnPinLocation = document.getElementById("btnPinCurrentLocation");
+      if (btnPinLocation) {
+        btnPinLocation.addEventListener("click", () => {
+          if (!navigator.geolocation) {
+            showError("Geolocation is not supported by your browser. Please enter coordinates manually.");
+            return;
+          }
+          btnPinLocation.disabled = true;
+          btnPinLocation.textContent = "Detecting GPS Coordinates...";
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              document.getElementById("rtLat").value = pos.coords.latitude.toFixed(4);
+              document.getElementById("rtLng").value = pos.coords.longitude.toFixed(4);
+              btnPinLocation.disabled = false;
+              btnPinLocation.textContent = "✓ Location Coordinates Pinned";
+              setTimeout(() => {
+                btnPinLocation.textContent = "Detect & Pin Current GPS Location";
+              }, 3000);
+            },
+            (err) => {
+              btnPinLocation.disabled = false;
+              btnPinLocation.textContent = "Detect & Pin Current GPS Location";
+              showError("Could not retrieve GPS coordinates (" + err.message + "). Please type coordinates manually.");
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+          );
+        });
+      }
+
+      // Handle Rescue Team Form Submit
+      if (rescueForm) {
+        rescueForm.onsubmit = async (e) => {
+          e.preventDefault();
+          clearError();
+
+          const teamName = document.getElementById("rtTeamName").value.trim();
+          const teamCategory = document.getElementById("rtCategory").value;
+          const teamSize = parseInt(document.getElementById("rtTeamSize").value, 10);
+          const teamLeader = document.getElementById("rtLeader").value.trim();
+          const contactNumber = document.getElementById("rtContact").value.trim();
+          const operatingDistrict = document.getElementById("rtDistrict").value.trim();
+          const operatingRegion = document.getElementById("rtRegion").value.trim();
+          const baseAddress = document.getElementById("rtAddress").value.trim();
+          const latVal = parseFloat(document.getElementById("rtLat").value);
+          const lngVal = parseFloat(document.getElementById("rtLng").value);
+          const email = document.getElementById("rtEmail").value.trim();
+          const password = document.getElementById("rtPassword").value;
+          const confirmPassword = document.getElementById("rtConfirmPassword").value;
+
+          const checkedCaps = Array.from(document.querySelectorAll('input[name="rtCaps"]:checked')).map(cb => cb.value);
+
+          if (!teamName) return showError("Please enter an official rescue team name.");
+          if (!teamLeader) return showError("Please enter the team leader name.");
+          if (!contactNumber) return showError("Please enter a contact phone number.");
+          if (!operatingDistrict) return showError("Please enter the operating district.");
+          if (!operatingRegion) return showError("Please enter the operating region.");
+          if (!baseAddress) return showError("Please enter the base headquarters address.");
+          if (isNaN(latVal) || latVal < -90 || latVal > 90) return showError("Please enter a valid base latitude between -90 and 90.");
+          if (isNaN(lngVal) || lngVal < -180 || lngVal > 180) return showError("Please enter a valid base longitude between -180 and 180.");
+          if (checkedCaps.length === 0) return showError("Please select at least one rescue capability.");
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showError("Please enter a valid official email address.");
+          if (!password || password.length < 8) return showError("Password must be at least 8 characters long.");
+          if (password !== confirmPassword) return showError("Passwords do not match.");
+
+          const submitBtn = document.getElementById("btnSubmitRescueTeam");
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Submitting Registration Request...";
+
+          try {
+            const apiBase = window.LW?.config?.apiBase || "http://localhost:8080/api";
+            const res = await fetch(`${apiBase}/auth/register-rescue-team`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                teamName,
+                teamCategory,
+                teamSize,
+                teamLeader,
+                contactNumber,
+                operatingDistrict,
+                operatingRegion,
+                baseAddress,
+                latitude: latVal,
+                longitude: lngVal,
+                capabilities: checkedCaps,
+                email,
+                password
+              })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+              throw new Error(data.message || "Failed to register rescue team.");
+            }
+
+            // Show success notification card
+            rescueForm.style.display = "none";
+            document.querySelector(".signup-role-tabs").style.display = "none";
+            rescueSuccessCard.style.display = "block";
+            if (window.LW?.ui?.toast) {
+              window.LW.ui.toast("Rescue Team registration submitted! Pending DMO review.", "success");
+            }
+          } catch (err) {
+            showError(err.message || "Failed to submit rescue team registration.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Rescue Team Registration";
+          }
+        };
+      }
+
+    });
+  </script>
+</body>
+</html>

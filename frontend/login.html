@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlopeGuard — Sign In</title>
+  <meta name="description" content="SlopeGuard Sign In — Authorized AI-Powered Landslide Risk Monitoring for North Eastern Region (NER).">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C7F464'/><polygon points='4,32 16,14 24,32' fill='%23294B32'/></svg>">
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <!-- Google Identity Services Library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* Brand Header in Login Form Pane */
+    .login-brand-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+    }
+    .login-brand-header .logo-icon-svg {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+    .login-brand-heading-text {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--lw-text, #46566A);
+      letter-spacing: -0.02em;
+    }
+    .login-brand-heading-text span {
+      color: var(--lw-cta, #C96F4F);
+    }
+
+    /* Error Banner */
+    .auth-error-banner {
+      display: none;
+      padding: 10px 14px;
+      background: rgba(184, 75, 41, 0.1);
+      border: 1px solid rgba(184, 75, 41, 0.3);
+      border-radius: var(--lw-r-sm, 6px);
+      color: #8F2B14;
+      font-size: 0.8125rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Password Input with Show/Hide Toggle */
+    .login-input.has-toggle {
+      padding-right: 2.85rem;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--lw-text-muted, #72826F);
+      cursor: pointer;
+      padding: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: color var(--transition-fast), background-color var(--transition-fast);
+      z-index: 2;
+    }
+    .password-toggle-btn:hover {
+      color: var(--lw-cta, #C96F4F);
+      background: rgba(201, 111, 79, 0.08);
+    }
+    .password-toggle-btn:focus-visible {
+      outline: 2px solid var(--lw-cta, #C96F4F);
+      outline-offset: 1px;
+    }
+
+    /* Primary Log In Button (Terracotta Earthy Theme) */
+    .btn-sign-in {
+      background-color: var(--lw-cta, #C96F4F);
+      color: var(--lw-on-cta, #FFFFFF);
+      font-weight: 700;
+      border: 1px solid var(--lw-cta, #C96F4F);
+      box-shadow: 0 4px 14px rgba(201, 111, 79, 0.25);
+    }
+    .btn-sign-in:hover {
+      background-color: var(--lw-cta-hover, #B85E3E);
+      border-color: var(--lw-cta-hover, #B85E3E);
+      box-shadow: 0 6px 20px rgba(201, 111, 79, 0.35);
+    }
+
+    /* Google Button with light background and clear readable typography */
+    .btn-google {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--lw-r-sm, 6px);
+      background: #FFFFFF !important;
+      border: 1px solid #DADCE0 !important;
+      color: #3C4043 !important;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+      transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    }
+    .btn-google:hover {
+      background: #F8F9FA !important;
+      color: #202124 !important;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      transform: translateY(-1px);
+    }
+    .btn-google:active {
+      background: #EEEEEE !important;
+      transform: translateY(0);
+    }
+    .btn-google:focus-visible {
+      outline: 2px solid var(--lw-cta, #C96F4F);
+      outline-offset: 2px;
+    }
+
+    /* Sign Up Footer beneath Login Details */
+    .login-signup-footer {
+      text-align: center;
+      margin-top: 1.35rem;
+      font-size: 0.875rem;
+      color: var(--lw-text-secondary, #445345);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+    }
+    .login-signup-footer .signup-link {
+      color: var(--lw-cta, #C96F4F);
+      font-weight: 700;
+      text-decoration: none;
+      transition: color var(--transition-fast), text-decoration var(--transition-fast);
+    }
+    .login-signup-footer .signup-link:hover {
+      color: var(--lw-cta-hover, #B85E3E);
+      text-decoration: underline;
+    }
+    .login-signup-footer .signup-link:focus-visible {
+      outline: 2px solid var(--lw-cta, #C96F4F);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* Responsive Viewport Fitting Safeguards */
+    .login-form-pane {
+      padding: 2.25rem 2.25rem;
+    }
+    .login-header-group {
+      margin-bottom: 1.5rem;
+    }
+    .login-subtitle {
+      margin-bottom: 0;
+    }
+    .login-field {
+      margin-bottom: 1.15rem;
+    }
+    .login-options-row {
+      margin-bottom: 1.35rem;
+    }
+    .login-divider {
+      margin: 1.25rem 0;
+    }
+
+
+    @media (max-width: 600px) {
+      .login-form-pane {
+        padding: 1.75rem 1.25rem;
+      }
+      .login-container-card {
+        margin: 0.75rem 0;
+      }
+    }
+    @media (max-width: 400px) {
+      .login-body {
+        padding: 1rem 0.5rem;
+      }
+      .login-form-pane {
+        padding: 1.25rem 0.85rem;
+      }
+      .login-title {
+        font-size: 1.45rem;
+      }
+      .login-options-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body class="login-body">
+
+  <main class="login-container-card">
+    <!-- Left Visual Column (Desktop) -->
+    <div class="login-visual-pane">
+      <div class="login-visual-content">
+        <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+          <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+          <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+          <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+          <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+        </svg>
+
+        <h1 class="login-brand-title">Slope<span>Guard</span></h1>
+        <p class="login-visual-tagline">North Eastern Region (NER) Landslide Intelligence</p>
+        <p class="login-visual-subtext">Understand the terrain. Anticipate the risk.</p>
+      </div>
+    </div>
+
+    <!-- Right Login Form Column -->
+    <div class="login-form-pane">
+      <!-- 1. SlopeGuard Logo and "Welcome Back" Heading -->
+      <div class="login-header-group">
+        <a href="index.html" class="login-brand-header" style="text-decoration: none;" aria-label="Back to LANDSENTRY Homepage">
+          <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+            <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+            <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+            <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+            <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+          </svg>
+          <span class="login-brand-heading-text">Slope<span>Guard</span></span>
+        </a>
+        <h2 class="login-title" id="authTitle">Welcome Back</h2>
+        <p class="login-subtitle" id="authSubtitle">Sign in to your authorized monitoring account</p>
+      </div>
+
+      <!-- Error Banner -->
+      <div class="auth-error-banner" id="authErrorBanner" role="alert"></div>
+
+      <!-- Login Form -->
+      <form id="authForm" action="javascript:void(0);" novalidate>
+        <!-- 2. Email Address Input -->
+        <div class="login-field">
+          <label for="usernameInput" class="sr-only">Email address</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <input 
+              type="email" 
+              id="usernameInput" 
+              name="username" 
+              class="login-input" 
+              placeholder="Official Email Address" 
+              required
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <!-- 3. Password Input with Show/Hide Toggle -->
+        <div class="login-field">
+          <label for="passwordInput" class="sr-only">Password</label>
+          <div class="login-input-wrapper">
+            <svg class="login-field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <input 
+              type="password" 
+              id="passwordInput" 
+              name="password" 
+              class="login-input has-toggle" 
+              placeholder="Security Password" 
+              required
+              autocomplete="current-password"
+            >
+            <button type="button" class="password-toggle-btn" id="togglePasswordBtn" aria-label="Show password" title="Toggle password visibility">
+              <!-- Eye Icon (Password hidden) -->
+              <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <!-- Eye Off Icon (Password visible) -->
+              <svg id="eyeOffIcon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Forgot Password Link & Session Remember -->
+        <div class="login-options-row" id="rememberRow">
+          <label class="remember-label">
+            <input type="checkbox" name="rememberMe" id="rememberMe" checked>
+            <span>Remember session</span>
+          </label>
+          <a href="forgot-password.html" class="forgot-link" id="forgotLink">Forgot password?</a>
+        </div>
+
+        <!-- 5. Primary Log In Button (Solid Lime) -->
+        <button type="submit" class="btn-sign-in" id="submitBtn">
+          <span id="submitBtnText">Log In</span>
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+
+        <!-- 6. Separator OR -->
+        <div class="login-divider">
+          <span>OR</span>
+        </div>
+
+        <!-- 7. Continue with Google Button -->
+        <button type="button" class="btn-google" id="btnGoogleSignIn" aria-label="Continue with Google">
+          <svg class="google-icon-svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span id="googleBtnText">Continue with Google</span>
+        </button>
+      </form>
+
+      <!-- 8. Footer below the login details: Don't have an account? Sign Up -->
+      <div class="login-signup-footer">
+        <span>Don't have an account?</span>
+        <a href="signup.html" class="signup-link" id="signUpLink">Sign Up</a>
+      </div>
+
+      <!-- Quick Demo Credentials for Evaluation -->
+      
+
+      <div class="login-footer-notice" id="footerNotice">
+        Official government emergency early warning portal &bull; North Eastern Region
+      </div>
+    </div>
+  </main>
+
+  <!-- Core JavaScript Services -->
+  <script src="js/core/config.js"></script>
+  <script src="js/core/content.js"></script>
+  <script src="js/core/format.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/connectivity.js"></script>
+  <script src="js/core/api.js"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/core/ui.js"></script>
+  <script src="js/core/guard.js"></script>
+  <script src="js/services/regions-service.js"></script>
+
+  <script>
+    // Validate and resolve safe redirect destination (defaults to dashboard.html, rescue-dashboard.html, or admin/dashboard.html)
+    function getSafeDestination(user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const next = urlParams.get("next") || urlParams.get("returnUrl");
+      let u = user;
+      if (!u) {
+        try {
+          const raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+          u = raw ? JSON.parse(raw) : null;
+        } catch(e) {}
+      }
+      const role = (u?.role || "").toUpperCase();
+      const isRescue = role === "OFFICER" || role === "RESCUE_FORCE";
+      const isAdmin = role === "ADMIN";
+
+      const defaultDest = isAdmin ? "admin/dashboard.html" : (isRescue ? "rescue-dashboard.html" : "dashboard.html");
+
+      if (!next) return defaultDest;
+
+      try {
+        const decoded = decodeURIComponent(next).trim();
+        // Prevent open redirect
+        if (decoded.startsWith("//") || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(decoded)) {
+          return defaultDest;
+        }
+        // Prevent redirect loops
+        if (decoded.includes("login.html") || decoded.includes("signup.html") || decoded.includes("#home") || decoded === "index.html") {
+          return defaultDest;
+        }
+
+        // Strict role-based destination enforcement
+        if (isAdmin) {
+          if (decoded.includes("admin/")) return decoded;
+          return "admin/dashboard.html";
+        }
+        if (isRescue) {
+          if (decoded.includes("rescue-dashboard")) return decoded;
+          return "rescue-dashboard.html";
+        }
+        // Citizen role
+        if (decoded.includes("admin/") || decoded.includes("rescue-dashboard")) {
+          return "dashboard.html";
+        }
+        return decoded;
+      } catch (e) {
+        return defaultDest;
+      }
+    }
+
+    const safeDestination = getSafeDestination();
+
+    // Immediate check: If already logged in, redirect immediately to default or intended route
+    (function checkAlreadyLoggedIn() {
+      try {
+        const raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+        const user = raw ? JSON.parse(raw) : null;
+        if (user) {
+          window.location.replace(getSafeDestination(user));
+        }
+      } catch (e) {}
+    })();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const authForm = document.getElementById("authForm");
+      const errorBanner = document.getElementById("authErrorBanner");
+      const usernameInput = document.getElementById("usernameInput");
+      const passwordInput = document.getElementById("passwordInput");
+      const submitBtn = document.getElementById("submitBtn");
+      const submitBtnText = document.getElementById("submitBtnText");
+      const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+      const eyeIcon = document.getElementById("eyeIcon");
+      const eyeOffIcon = document.getElementById("eyeOffIcon");
+      const signUpLink = document.getElementById("signUpLink");
+
+      // Preserve return destination on Sign Up link if present
+      const urlParams = new URLSearchParams(window.location.search);
+      const nextParam = urlParams.get("next") || urlParams.get("returnUrl");
+      if (nextParam && signUpLink) {
+        signUpLink.href = `signup.html?next=${encodeURIComponent(nextParam)}`;
+      }
+
+      // Password Show/Hide Toggle
+      if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener("click", () => {
+          const isPassword = passwordInput.type === "password";
+          passwordInput.type = isPassword ? "text" : "password";
+          togglePasswordBtn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+          eyeIcon.style.display = isPassword ? "none" : "block";
+          eyeOffIcon.style.display = isPassword ? "block" : "none";
+          passwordInput.focus();
+        });
+      }
+
+      
+
+      // Forgot Password behavior
+      const forgotLink = document.getElementById("forgotLink");
+      if (forgotLink) {
+        forgotLink.addEventListener("click", (e) => {
+          // If forgot-password.html exists, navigate to it; also notify user
+          if (window.LW.ui?.toast) {
+            window.LW.ui.toast("Opening password reset assistance...", "info");
+          }
+        });
+      }
+
+      // Form Submission
+      authForm.onsubmit = async (e) => {
+        e.preventDefault();
+        errorBanner.style.display = "none";
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        const rememberMeInput = document.getElementById("rememberMe");
+        const remember = rememberMeInput ? rememberMeInput.checked : true;
+
+        if (!username || !password) {
+          errorBanner.textContent = "Please enter both official email and security password.";
+          errorBanner.style.display = "block";
+          return;
+        }
+
+        submitBtn.disabled = true;
+        const originalText = submitBtnText.textContent;
+        submitBtnText.textContent = "Verifying Credentials...";
+
+        try {
+          const user = await window.LW.authService.login(username, password, remember);
+
+          if (user) {
+            submitBtnText.textContent = "Success! Launching...";
+            window.LW.ui?.toast(`Authenticated as ${user.name} (${user.role})`, "success");
+            setTimeout(() => {
+              window.location.replace(getSafeDestination(user));
+            }, 300);
+          } else {
+            throw new Error("Unable to establish authenticated session.");
+          }
+        } catch (err) {
+          console.error("[Login Error]", err);
+          errorBanner.textContent = err.message || "Invalid credentials or unauthorized station. Please verify your details.";
+          errorBanner.style.display = "block";
+          submitBtn.disabled = false;
+          submitBtnText.textContent = originalText;
+        }
+      };
+
+      // Google Authentication Flow
+      const btnGoogle = document.getElementById("btnGoogleSignIn");
+      const googleBtnText = document.getElementById("googleBtnText");
+
+      // Check for OAuth2 Post-Login Redirect parameters (?oauth=success or ?error=...)
+      (async function handleOAuthRedirect() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const oauthStatus = urlParams.get("oauth");
+        const oauthError = urlParams.get("error");
+
+        if (oauthStatus === "success") {
+          if (btnGoogle) btnGoogle.disabled = true;
+          if (googleBtnText) googleBtnText.textContent = "Completing Google Sign In...";
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            const user = await window.LW.auth.fetchOAuthSession();
+            if (user) {
+              if (googleBtnText) googleBtnText.textContent = "Success! Launching...";
+              window.LW.ui?.toast(`Authenticated via Google as ${user.name || user.fullName} (${user.role})`, "success");
+              // Clean query parameters from URL
+              try {
+                window.history.replaceState({}, document.title, window.location.pathname);
+              } catch (e) {}
+              setTimeout(() => {
+                window.location.replace(getSafeDestination(user));
+              }, 400);
+              return;
+            }
+          } catch (err) {
+            console.error("[OAuth Session Retrieval Error]", err);
+            errorBanner.textContent = "Google authentication succeeded, but failed to establish session. Please try again.";
+            errorBanner.style.display = "block";
+            if (btnGoogle) btnGoogle.disabled = false;
+            if (googleBtnText) googleBtnText.textContent = "Continue with Google";
+            if (submitBtn) submitBtn.disabled = false;
+          }
+        }
+
+        if (oauthError) {
+          const errorMap = {
+            "email_conflict": "An account with this email already exists using password authentication. Please log in with your email and password.",
+            "unverified_email": "Your Google email address is not verified. Please verify your Google account before signing in.",
+            "missing_email": "Google did not provide a valid email address for your profile.",
+            "account_disabled": "Your account has been deactivated. Please contact the system administrator.",
+            "oauth_canceled": "Google sign-in was canceled. Please try again.",
+            "oauth_config_error": "Google Cloud credentials (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET) are not configured on this server.",
+            "oauth_failed": "Google authentication failed. Please try again or sign in with your email and password."
+          };
+
+          errorBanner.textContent = errorMap[oauthError] || "Google authentication encountered an error. Please try again.";
+          errorBanner.style.display = "block";
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (e) {}
+        }
+      })();
+
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const jsonPayload = decodeURIComponent(atob(base64).split("").map(c => {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(""));
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      async function performDirectGoogleSignIn(googlePayload) {
+        try {
+          if (btnGoogle) btnGoogle.disabled = true;
+          if (googleBtnText) googleBtnText.textContent = "Connecting with Google...";
+          errorBanner.style.display = "none";
+
+          const user = await window.LW.auth.loginWithGoogle(googlePayload);
+
+          if (user) {
+            if (googleBtnText) googleBtnText.textContent = "Signed In! Launching...";
+            window.LW.ui?.toast(`Authenticated via Google as ${user.name || user.fullName}`, "success");
+            setTimeout(() => {
+              window.location.replace(getSafeDestination(user));
+            }, 300);
+          } else {
+            throw new Error("Unable to establish authenticated Google session.");
+          }
+        } catch (err) {
+          console.error("[Google Auth Error]", err);
+          errorBanner.textContent = err.message || "Google authentication failed. Please try again.";
+          errorBanner.style.display = "block";
+          if (btnGoogle) btnGoogle.disabled = false;
+          if (googleBtnText) googleBtnText.textContent = "Continue with Google";
+        }
+      }
+
+      // Initialize Google Identity Services if client ID is configured
+      window.handleGoogleCredentialResponse = function(response) {
+        if (response && response.credential) {
+          const payload = parseJwt(response.credential);
+          performDirectGoogleSignIn({
+            idToken: response.credential,
+            token: response.credential,
+            name: payload?.name || "Google User",
+            email: payload?.email,
+            picture: payload?.picture || null,
+            sub: payload?.sub
+          });
+        }
+      };
+
+      if (btnGoogle) {
+        btnGoogle.addEventListener("click", () => {
+          if (btnGoogle.disabled) return;
+          btnGoogle.disabled = true;
+          if (googleBtnText) googleBtnText.textContent = "Redirecting to Google...";
+          errorBanner.style.display = "none";
+
+          // Trigger standard Spring Security OAuth2 authorization code flow
+          window.LW.auth.initiateGoogleOAuth(window.location.origin + window.location.pathname);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

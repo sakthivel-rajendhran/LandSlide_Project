@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlopeGuard — Landslide Incident Reporting & Rescue Coordination System</title>
+  <meta name="description" content="SlopeGuard brings together geographic intelligence, environmental telemetry, and AI-assisted risk analysis to anticipate landslide hazards and protect vulnerable communities.">
+  <meta name="keywords" content="landslide prediction, early warning system, Western Ghats, disaster risk reduction, terrain intelligence, rainfall monitoring">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C7F464'/><polygon points='4,32 16,14 24,32' fill='%23294B32'/></svg>">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#14251A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SlopeGuard">
+  
+  <!-- Google Fonts: Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Pinyon+Script&family=Alex+Brush&display=swap" rel="stylesheet">
+  
+  <!-- Firlest Headline Webfont -->
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/firlest">
+  
+  <!-- Core Design System & Styles (Cinematic Dark Forest-Green Glassmorphism) -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       Header — Separate Branding (Left), Dedicated Navigation Bar (Center),
+       and Live Dashboard CTA (Right)
+       ======================================================================== -->
+  <header class="site-header" id="navbar">
+    <div class="header-container">
+      <!-- 1. Left: SlopeGuard Project Branding (Outside Navigation Bar) -->
+      <a href="#home" class="brand-logo" aria-label="SlopeGuard Home">
+        <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Left Ridge -->
+          <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+          <!-- Central Apex Peak -->
+          <polygon points="12,32 23,6 34,32" fill="#C7F464" />
+          <!-- Crest & Facet Definition -->
+          <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+          <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+          <!-- Right Slope -->
+          <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+        </svg>
+        <span class="brand-name">SLOPE<span>GUARD</span></span>
+      </a> 
+
+      <!-- 2. Center: Dedicated Navigation Bar (Contains ONLY the 6 navigation items) -->
+      <nav class="nav-bar" id="primaryNav" aria-label="Primary Navigation">
+        <div class="nav-links">
+          <a href="#home" class="nav-link active" aria-current="location">Home</a>
+          <a href="#overview" class="nav-link">Overview</a>
+          <a href="#risk-intelligence" class="nav-link">Risk Intelligence</a>
+          <a href="#how-it-works" class="nav-link">How It Works</a>
+          <a href="#technology" class="nav-link">Technology</a>
+          <a href="#about" class="nav-link">About</a>
+        </div>
+      </nav>
+
+      <!-- 3. Right: Live Dashboard CTA (Outside Navigation Bar) & Mobile Hamburger -->
+      <div class="header-actions">
+        <a href="dashboard.html" class="nav-cta-btn" id="headerDashboardBtn">
+          <span>Live Dashboard</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </a>
+
+        <!-- Mobile Menu Hamburger Button -->
+        <button class="mobile-toggle" aria-controls="primaryNav" aria-expanded="false" aria-label="Toggle Navigation Menu">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========================================================================
+         Section 1 — Home (Cinematic Hero with Dark Forest Backdrop & Feature Cards)
+         ======================================================================== -->
+    <section class="hero-section" id="home">
+      <!-- Full-Bleed Dark Forest Moss Backdrop -->
+      <div class="hero-bg-wrapper">
+        <img 
+          src="assets/images/dark-forest-moss.jpg" 
+          alt="Cinematic misty mountains and dark mossy boulders" 
+          class="hero-bg-img"
+          fetchpriority="high"
+        >
+        <div class="hero-overlay"></div>
+      </div>
+
+      <div class="container hero-container">
+        <!-- Main Headline with Editorial Italic Serif -->
+        <h1 class="hero-headline">
+          Understand the terrain.<br>
+          <span class="hero-highlight-italic handwritten-anticipate"><span class="handwritten-text">Anticipate</span><span class="handwritten-nib" aria-hidden="true"></span></span> the risk.
+        </h1>
+
+        <!-- Supporting Description -->
+        <p class="hero-desc">
+          The unified emergency operations platform for citizen hazard reporting, administrative verification, and rescue response coordination.
+        </p>
+
+        <!-- CTA & Trust Indicators -->
+        <div class="hero-cta-cluster">
+          <a href="#risk-intelligence" class="btn-hero-primary">
+            <span>Explore Risk Intelligence</span>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </a>
+
+          <div class="hero-trust-checklist">
+            <div class="trust-check-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Geographic monitoring</span>
+            </div>
+            <div class="trust-check-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Rainfall-informed assessment</span>
+            </div>
+            <div class="trust-check-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Interactive risk visualization</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Section 2 — Overview (Problem Addressed, Capabilities & Purpose)
+         ======================================================================== -->
+    <section class="section-features" id="overview">
+      <div class="container">
+        <div class="features-header">
+          <span class="section-badge">
+            <span class="section-badge-dot"></span>
+            Platform Overview
+          </span>
+          <h2 class="section-title">Engineered for Vulnerable Slopes</h2>
+          <p class="section-desc">
+            Explore how SlopeGuard organizes environmental indicators and spatial insights into practical decision-support tools.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+            </div>
+            <h3 class="feature-title">Geographic Risk Mapping</h3>
+            <p class="feature-desc">
+              Interactive spatial exploration of critical slopes with high-resolution topographic data layers and monitored regional boundaries.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Spatial Zones</span>
+              <span class="feature-pill">Terrain Models</span>
+              <span class="feature-pill">Western Ghats</span>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <h3 class="feature-title">Environmental Telemetry</h3>
+            <p class="feature-desc">
+              Continuous monitoring of precipitation accumulation, saturation indexes, and soil moisture levels across field stations.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Precipitation Telemetry</span>
+              <span class="feature-pill">Soil Saturation</span>
+              <span class="feature-pill">Slope Gradient</span>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </div>
+            <h3 class="feature-title">Early Warning Support</h3>
+            <p class="feature-desc">
+              Tiered hazard notifications allowing authorities and local responders to initiate timely disaster preparedness protocols.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Tiered Severity</span>
+              <span class="feature-pill">Timely Alerts</span>
+              <span class="feature-pill">Preparedness</span>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <h3 class="feature-title">AI Susceptibility Analytics</h3>
+            <p class="feature-desc">
+              Multi-variable hazard calculations identifying the strongest contributing causes of slope instability and displacement.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Contributing Factors</span>
+              <span class="feature-pill">Trend Indicators</span>
+              <span class="feature-pill">Risk Insights</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Section 3 — Risk Intelligence (Static Public Risk-Map Preview & Telemetry HUD)
+         ======================================================================== -->
+    <section class="section-risk-map" id="risk-intelligence">
+      <div class="container">
+        <div class="map-section-header">
+          <span class="section-badge">
+            <span class="section-badge-dot"></span>
+            Real-Time Geographic Intelligence
+          </span>
+          <h2 class="section-title">Western Ghats Hazard Telemetry</h2>
+          <p class="section-desc">
+            Explore active slope failure susceptibility, precipitation thresholds, and high-risk corridors across monitored regional sectors.
+          </p>
+        </div>
+
+        <!-- Filter & Search Controls / Sector Selector Toolbar -->
+        <div class="map-filter-bar">
+          <div class="filter-pills-group" role="tablist" aria-label="Sector Selection">
+            <button type="button" class="filter-pill-btn active" data-sector="all">All Sectors (Wayanad)</button>
+            <button type="button" class="filter-pill-btn" data-sector="meppadi">Meppadi Ridge</button>
+            <button type="button" class="filter-pill-btn" data-sector="kalpetta">Kalpetta Slopes</button>
+            <button type="button" class="filter-pill-btn" data-sector="vythiri">Vythiri Pass</button>
+          </div>
+          
+          <div class="filter-pills-group" aria-label="Layer Controls">
+            <button type="button" class="filter-pill-btn active" id="toggleRiskLayer">Hazard Buffers</button>
+            <button type="button" class="filter-pill-btn" id="toggleRainfallLayer">24h Rainfall</button>
+          </div>
+        </div>
+
+        <!-- Master Glass Map Stage with Static Risk-Map Preview -->
+        <div class="map-stage-wrapper">
+          <div class="map-top-bar">
+            <div class="map-live-status">
+              <span class="status-pulse-dot"></span>
+              <span id="mapSelectedSectorDisplay">Monitored Hazard Observation (Western Ghats, Kerala)</span>
+            </div>
+            <span id="mapCoordsDisplay" style="font-size: 0.8rem; color: var(--color-text-muted);">Coordinates: 11.6050° N, 76.1320° E (District Corridor)</span>
+          </div>
+
+          <!-- Main Map Card Body: Map Visualization + Sector Telemetry HUD -->
+          <div class="map-card-body">
+            <!-- Map Visualization Canvas Frame -->
+            <div class="map-canvas-frame" id="mapCanvasFrame">
+              <!-- Wayanad, Kerala Topographic Risk Visualization Asset -->
+              <img 
+                src="assets/images/wayanad-risk-map.jpg" 
+                alt="SlopeGuard Wayanad, Kerala Landslide Risk Intelligence Map" 
+                class="map-static-preview-img"
+                id="wayanadMapImg"
+                loading="lazy"
+              >
+
+              <!-- Layer Overlays (Hazard Buffers & 24h Rainfall Isohyets) -->
+              <div class="map-layer-overlay hazard-buffer-overlay visible" id="layerHazardBuffers"></div>
+              <div class="map-layer-overlay rainfall-layer-overlay" id="layerRainfall"></div>
+
+              <!-- Interactive Sector Pins on Map Frame -->
+              <div class="sector-pin-marker" id="pinMeppadi" style="top: 42%; left: 58%;" data-sector="meppadi" title="Select Meppadi Ridge">
+                <span class="sector-pin-dot severe"></span>
+                <span class="sector-pin-label">Meppadi Ridge</span>
+              </div>
+
+              <div class="sector-pin-marker" id="pinKalpetta" style="top: 57%; left: 53%;" data-sector="kalpetta" title="Select Kalpetta Slopes">
+                <span class="sector-pin-dot moderate"></span>
+                <span class="sector-pin-label">Kalpetta</span>
+              </div>
+
+              <div class="sector-pin-marker" id="pinVythiri" style="top: 53%; left: 39%;" data-sector="vythiri" title="Select Vythiri Pass">
+                <span class="sector-pin-dot high"></span>
+                <span class="sector-pin-label">Vythiri Pass</span>
+              </div>
+
+              <!-- Illustrative-risk notice inside the map area without covering essential content -->
+              <div class="map-preview-caption-badge" id="mapCaptionBadge">
+                <span class="caption-pulse"></span>
+                <span id="mapCaptionText">Illustrative risk visualization — sign in to access live map monitoring.</span>
+              </div>
+
+              <!-- Active Layer Status Pill -->
+              <div class="map-layer-status-pill" id="mapLayerStatusPill">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><polyline points="12 6 12 12 14 14" stroke-width="2"/></svg>
+                <span id="mapLayerStatusText">Hazard Buffers Layer Active (GSI Envelope)</span>
+              </div>
+            </div>
+
+            <!-- Sector Telemetry HUD in a separate, clearly positioned panel -->
+            <div class="map-hud-panel" id="sectorTelemetryHud">
+              <div class="hud-header-row">
+                <span class="hud-title">Sector Telemetry HUD</span>
+                <span class="hud-mode-badge" id="hudModeBadge">Illustrative</span>
+              </div>
+              <div class="hud-metric-row">
+                <span class="hud-label">Sector Zone</span>
+                <span class="hud-val" id="hudSectorName">All Sectors (Wayanad)</span>
+              </div>
+              <div class="hud-metric-row">
+                <span class="hud-label">Risk Susceptibility</span>
+                <span class="hud-val alert" id="hudRiskScore">75% High Susceptibility</span>
+              </div>
+              <div class="hud-metric-row">
+                <span class="hud-label">24h Precipitation</span>
+                <span class="hud-val" id="hudPrecipitation">138.8 mm (Regional Mean)</span>
+              </div>
+              <div class="hud-metric-row">
+                <span class="hud-label">Soil Saturation</span>
+                <span class="hud-val alert" id="hudSaturation">72% Mean Saturation</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk legend below the map -->
+          <div class="map-legend-row" id="riskLegendRow">
+            <div class="legend-chips-row">
+              <div class="legend-chip">
+                <span class="legend-dot-indicator low"></span>
+                <span>Low Risk (&lt;40%)</span>
+              </div>
+              <div class="legend-chip">
+                <span class="legend-dot-indicator moderate"></span>
+                <span>Moderate (40%–69%)</span>
+              </div>
+              <div class="legend-chip">
+                <span class="legend-dot-indicator high"></span>
+                <span>High (70%–89%)</span>
+              </div>
+              <div class="legend-chip">
+                <span class="legend-dot-indicator severe"></span>
+                <span>Severe Hotspot (≥90%)</span>
+              </div>
+            </div>
+            <span class="legend-caption-note">
+              Relative geospatial susceptibility model index (v2.4-convLSTM) — not an absolute probability.
+            </span>
+          </div>
+
+          <!-- Telemetry metadata and data-source information in a dedicated area -->
+          <div class="map-telemetry-meta-bar" id="telemetryMetaBar">
+            <div class="hud-meta-item meta-item">
+              <span class="meta-label">Data Source:</span>
+              <span class="meta-value" id="hudDataSource">GSI Susceptibility &amp; IMD AWS Grid</span>
+            </div>
+            <div class="meta-separator">•</div>
+            <div class="hud-meta-item meta-item">
+              <span class="meta-label">Model Engine:</span>
+              <span class="meta-value" id="hudModelEngine">v2.4-convLSTM</span>
+            </div>
+            <div class="meta-separator">•</div>
+            <div class="hud-meta-item meta-item">
+              <span class="meta-label">Observation:</span>
+              <span class="meta-value" id="hudObservationTime">Updated 14 min ago</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-width "Access Live Map Monitoring" CTA below the map card -->
+        <div class="map-access-cta-container">
+          <a href="dashboard.html" class="btn-primary btn-access-live-cta" id="btnAccessMonitoring">
+            <span id="btnAccessMonitoringText">Access Live Map Monitoring</span>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Section 4 — How It Works (Three-Step Analytical Pipeline)
+         ======================================================================== -->
+    <section class="section-workflow" id="how-it-works">
+      <div class="container">
+        <div class="workflow-header">
+          <span class="section-badge">
+            <span class="section-badge-dot"></span>
+            Structured Process
+          </span>
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-desc">
+            A three-step analytical pipeline designed to collect environmental indicators, evaluate slope stability, and share early warnings.
+          </p>
+        </div>
+
+        <div class="workflow-timeline">
+          <div class="workflow-step-card">
+            <div class="step-node">01</div>
+            <h3 class="step-title">COLLECT</h3>
+            <p class="step-desc">
+              Ingest real-time precipitation records, satellite radar observations, and digital elevation models from regional monitoring stations.
+            </p>
+          </div>
+
+          <div class="workflow-step-card">
+            <div class="step-node">02</div>
+            <h3 class="step-title">ANALYZE</h3>
+            <p class="step-desc">
+              Evaluate multi-parameter stability factors using verified geological models and historical slope failure thresholds.
+            </p>
+          </div>
+
+          <div class="workflow-step-card">
+            <div class="step-node">03</div>
+            <h3 class="step-title">INFORM</h3>
+            <p class="step-desc">
+              Deliver actionable severity alerts, risk heatmaps, and spatial guidance to emergency coordinators and vulnerable communities.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Section 5 — Technology (Integrated Architecture & Geospatial Stack)
+         ======================================================================== -->
+    <section class="section-technology" id="technology">
+      <div class="container">
+        <div class="features-header">
+          <span class="section-badge">
+            <span class="section-badge-dot"></span>
+            Integrated Architecture
+          </span>
+          <h2 class="section-title">Geospatial & Telemetry Stack</h2>
+          <p class="section-desc">
+            Purpose-built components and verified data infrastructure powering SlopeGuard's real-time risk intelligence.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+            </div>
+            <h3 class="feature-title">Leaflet GIS Engine</h3>
+            <p class="feature-desc">
+              Client-side geospatial visualization engine providing interactive polygon vector rendering, sector zone boundary overlays, and dynamic hazard risk shading.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Spatial Vectors</span>
+              <span class="feature-pill">GeoJSON Overlays</span>
+              <span class="feature-pill">Interactive Bounds</span>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="feature-title">OpenStreetMap Integration</h3>
+            <p class="feature-desc">
+              High-resolution cartographic topography and terrain basemaps configured for resilient offline-capable caching and rapid field responsiveness.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Topographic Tiles</span>
+              <span class="feature-pill">Cartographic Base</span>
+              <span class="feature-pill">Offline Cache</span>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+            </div>
+            <h3 class="feature-title">Spring Boot 3 Core</h3>
+            <p class="feature-desc">
+              Enterprise Java telemetry ingestion engine running real-time RESTful APIs, spatial querying pipelines, and JWT session authorization guards.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">REST Services</span>
+              <span class="feature-pill">Spatial Queries</span>
+              <span class="feature-pill">Route Security</span>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h3 class="feature-title">Precipitation & Sensor Telemetry</h3>
+            <p class="feature-desc">
+              Automated integration with weather stations, cumulative rainfall threshold telemetry, and soil moisture saturation matrixes.
+            </p>
+            <div class="feature-pill-list">
+              <span class="feature-pill">Rainfall Gauges</span>
+              <span class="feature-pill">Saturation Index</span>
+              <span class="feature-pill">Automated Alerts</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Section 6 — About (Project Purpose & Analytical Factors)
+         ======================================================================== -->
+    <section class="section-intro" id="about">
+      <div class="container">
+        <div class="intro-grid">
+          <!-- Text Column -->
+          <div class="intro-content">
+            <span class="section-badge">
+              <span class="section-badge-dot"></span>
+              Project Purpose
+            </span>
+            <h2 class="section-title">Understand the risk before ground failure occurs.</h2>
+            
+            <p class="intro-lead">
+              SlopeGuard is engineered to assist communities and disaster management teams in identifying landslide susceptibility across vulnerable mountainous regions.
+            </p>
+
+            <p class="intro-body">
+              By combining rainfall telemetry, steep slope dynamics, terrain geology, Synthetic Aperture Radar (SAR) observations, and verified environmental datasets, the platform evaluates multi-factor risk indicators to support timely hazard mitigation.
+            </p>
+
+            <div class="intro-factors-grid">
+              <div class="factor-card">
+                <div class="factor-header">
+                  <div class="factor-icon-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                  </div>
+                  <h3 class="factor-title">Rainfall Thresholds</h3>
+                </div>
+                <p class="factor-desc">Monitors cumulative precipitation against historical slope failure limits.</p>
+              </div>
+
+              <div class="factor-card">
+                <div class="factor-header">
+                  <div class="factor-icon-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                  </div>
+                  <h3 class="factor-title">Terrain & Gradient</h3>
+                </div>
+                <p class="factor-desc">Evaluates slope steepness, curvature, and digital elevation models.</p>
+              </div>
+
+              <div class="factor-card">
+                <div class="factor-header">
+                  <div class="factor-icon-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                  </div>
+                  <h3 class="factor-title">Geospatial Telemetry</h3>
+                </div>
+                <p class="factor-desc">Analyzes satellite observations to track moisture and surface shifts.</p>
+              </div>
+
+              <div class="factor-card">
+                <div class="factor-header">
+                  <div class="factor-icon-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                  </div>
+                  <h3 class="factor-title">Community Notices</h3>
+                </div>
+                <p class="factor-desc">Incorporates verified field notices regarding ground fissures and shifts.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visual Column -->
+          <div class="intro-visual-wrapper">
+            <div class="intro-visual-card">
+              <img 
+                src="assets/images/terrain-study.jpg" 
+                alt="Environmental observation across steep slopes in the Western Ghats" 
+                class="intro-img"
+                loading="lazy"
+              >
+              <div class="intro-visual-overlay"></div>
+              
+              <div class="intro-floating-badge">
+                <div class="badge-metric">
+                  <span class="metric-val">3-Tier</span>
+                  <span class="metric-lbl">Warning System</span>
+                </div>
+                <div class="badge-divider"></div>
+                <div class="badge-metric">
+                  <span class="metric-val">Multi-Factor</span>
+                  <span class="metric-lbl">Analysis Matrix</span>
+                </div>
+                <div class="badge-divider"></div>
+                <div class="badge-metric">
+                  <span class="metric-val">Resilient</span>
+                  <span class="metric-lbl">Community Action</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         Section 7 — Call to Action
+         ======================================================================== -->
+    <section class="section-cta" id="cta">
+      <div class="container">
+        <div class="cta-box-outer">
+          <img 
+            src="assets/images/dark-forest-moss.jpg" 
+            alt="Cinematic mountain backdrop" 
+            class="cta-bg-image"
+            loading="lazy"
+          >
+          <div class="cta-bg-overlay"></div>
+
+          <div class="cta-content-wrapper">
+            <span class="section-badge">
+              <span class="section-badge-dot"></span>
+              Join the Network
+            </span>
+            <h2 class="cta-title">Build safer, disaster-resilient communities.</h2>
+            <p class="cta-desc">
+              Discover how SlopeGuard's terrain intelligence and early warning architecture can assist your regional disaster risk reduction operations.
+            </p>
+            <div class="cta-btn-group">
+              <a href="login.html" class="btn-primary">
+                <span>Get Started</span>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+              </a>
+              <a href="#risk-intelligence" class="btn-secondary">
+                <span>Explore Risk Intelligence</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       Section 8 — Footer (SlopeGuard Restored Green Design, 6 Nav Links)
+       ======================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-summary">
+          <a href="#home" class="brand-logo" aria-label="SlopeGuard Home">
+            <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+              <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+              <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+              <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+              <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+            </svg>
+            <span class="brand-name">SLOPE<span>GUARD</span></span>
+          </a>
+          <p class="footer-desc">
+            SlopeGuard is an AI-assisted landslide risk monitoring and early warning system designed to support disaster risk reduction, hazard assessment, and community resilience in vulnerable mountainous regions.
+          </p>
+        </div>
+
+        <div class="footer-nav-groups">
+          <div class="footer-nav-col">
+            <h4>Navigation</h4>
+            <div class="footer-nav-links">
+              <a href="#home">Home</a>
+              <a href="#overview">Overview</a>
+              <a href="#risk-intelligence">Risk Intelligence</a>
+              <a href="#how-it-works">How It Works</a>
+              <a href="#technology">Technology</a>
+              <a href="#about">About</a>
+            </div>
+          </div>
+
+          <div class="footer-nav-col">
+            <h4>System Access</h4>
+            <div class="footer-nav-links">
+              <a href="login.html">Sign In</a>
+              <a href="dashboard.html">Live Dashboard</a>
+              <a href="#risk-intelligence">Risk Intelligence</a>
+              <button type="button" id="btnInstallApp" class="footer-install-btn" style="display: none; background: none; border: none; padding: 0; color: var(--lw-cta, #C96F4F); font: inherit; text-align: left; cursor: pointer;">
+                ⬇ Install SlopeGuard App
+              </button>
+              <a href="#about">Documentation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">
+          &copy; 2026 SlopeGuard. All rights reserved. Disaster Risk Reduction Initiative.
+        </p>
+        <p class="footer-tagline">
+          Understand the terrain. Anticipate the risk.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts: Main Navigation, Scroll Tracking & Animation Observer -->
+  <script src="js/main.js"></script>
+
+  <!-- PWA Service Worker Registration & Installation Prompt Handling -->
+  <script>
+
+    // PWA Install Prompt Handler
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('btnInstallApp');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent browser default mini-infobar on mobile
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) {
+        installBtn.style.display = 'inline-block';
+      }
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+          alert('SlopeGuard can be installed via your browser menu (Add to Home screen or Install App).');
+          return;
+        }
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.info('[SlopeGuard PWA] Install choice outcome:', outcome);
+        if (outcome === 'accepted') {
+          installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.info('[SlopeGuard PWA] App was successfully installed.');
+      if (installBtn) {
+        installBtn.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

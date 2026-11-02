@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlopeGuard — Rescue Force Dashboard</title>
+  <meta name="description" content="Field response coordination and incident mission operations for authorized Rescue Teams.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C96F4F'/><polygon points='4,32 16,14 24,32' fill='%232E3A2F'/></svg>">
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/rescue-dashboard.css">
+
+  <!-- Immediate Authentication & Role Guard -->
+  <script>
+    (function() {
+      function checkAuth() {
+        try {
+          var raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+          var user = raw ? JSON.parse(raw) : null;
+          if (!user) {
+            window.location.replace("login.html?next=rescue-dashboard.html");
+            return;
+          }
+          var role = (user.role || "").toUpperCase();
+          if (role === "ADMIN") {
+            window.location.replace("admin/dashboard.html");
+            return;
+          }
+          if (role !== "OFFICER" && role !== "RESCUE_FORCE") {
+            window.location.replace("dashboard.html");
+            return;
+          }
+        } catch (e) {
+          window.location.replace("login.html");
+        }
+      }
+      checkAuth();
+      window.addEventListener("pageshow", function(e) {
+        if (e.persisted) checkAuth();
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- =========================================================================
+       Topbar: Clean Rescue Force Header
+       ========================================================================= -->
+  <header class="rescue-topbar">
+    <div class="rescue-brand-group">
+      <a href="rescue-dashboard.html" class="rescue-brand-logo" aria-label="SlopeGuard Rescue Force Dashboard">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="12,34 23,8 34,34" fill="#C96F4F"/>
+          <polygon points="4,34 16,16 24,34" fill="#6B7F5B"/>
+        </svg>
+        <span class="rescue-brand-title">
+          SlopeGuard
+          <span class="rescue-role-tag">Rescue Force</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="rescue-topbar-actions">
+      <!-- Operational Availability Status Pill Button -->
+      <button type="button" class="rescue-availability-btn" id="btnTeamProfile" title="View Team Profile & Operational Availability">
+        <span class="avail-dot" id="availDot"></span>
+        <span id="availLabel">Available</span>
+      </button>
+
+      <!-- Officer Profile Identity -->
+      <div class="rescue-officer-profile">
+        <div class="rescue-officer-avatar" id="officerAvatar">R</div>
+        <div class="rescue-officer-info">
+          <span class="rescue-officer-name" id="officerName">Rescue Force Unit</span>
+          <span class="rescue-officer-role">Field Operations</span>
+        </div>
+      </div>
+
+      <!-- Single Sign Out Button -->
+      <button type="button" class="btn-signout" id="btnSignOut" title="Sign out of rescue terminal">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       Main Content Container (Full Width)
+       ========================================================================= -->
+  <main class="rescue-main-wrapper">
+
+    <!-- Page Heading -->
+    <div class="rescue-heading-block">
+      <h1 class="rescue-page-title">Rescue Mission Operations</h1>
+      <p class="rescue-page-subtitle">Real-time field response coordination and assigned incident management.</p>
+    </div>
+
+    <!-- Verification Notice Banner (Pending or Rejected) -->
+    <div id="rescueNoticeBanner" class="rescue-notice-banner" style="display: none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <div>
+        <div class="rescue-notice-title" id="rescueNoticeTitle">Registration Pending DMO Verification</div>
+        <p class="rescue-notice-desc" id="rescueNoticeDesc">
+          Your Rescue Team registration has been submitted and is currently pending review and authorization by the District Disaster Management Officer. You will be able to receive and respond to mission assignments once approved.
+        </p>
+      </div>
+    </div>
+
+    <!-- 1. Four Compact Summary Cards -->
+    <section class="rescue-summary-grid" aria-label="Mission Summary Metrics">
+      <!-- Card 1: New Assignments -->
+      <div class="rescue-stat-card">
+        <div class="rescue-stat-header">
+          <span class="rescue-stat-label">New Assignments</span>
+          <div class="rescue-stat-icon-wrapper icon-new">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+        </div>
+        <div class="rescue-stat-value" id="statNewAssignments">0</div>
+        <div class="rescue-stat-footer">Pending your review & acceptance</div>
+      </div>
+
+      <!-- Card 2: Accepted Missions -->
+      <div class="rescue-stat-card">
+        <div class="rescue-stat-header">
+          <span class="rescue-stat-label">Accepted Missions</span>
+          <div class="rescue-stat-icon-wrapper icon-accepted">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+        <div class="rescue-stat-value" id="statAcceptedMissions">0</div>
+        <div class="rescue-stat-footer">Prepared & awaiting deployment</div>
+      </div>
+
+      <!-- Card 3: In Progress -->
+      <div class="rescue-stat-card">
+        <div class="rescue-stat-header">
+          <span class="rescue-stat-label">In Progress</span>
+          <div class="rescue-stat-icon-wrapper icon-progress">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+        </div>
+        <div class="rescue-stat-value" id="statInProgress">0</div>
+        <div class="rescue-stat-footer">En route or actively on scene</div>
+      </div>
+
+      <!-- Card 4: Completed Missions -->
+      <div class="rescue-stat-card">
+        <div class="rescue-stat-header">
+          <span class="rescue-stat-label">Completed Missions</span>
+          <div class="rescue-stat-icon-wrapper icon-completed">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="rescue-stat-value" id="statCompletedMissions">0</div>
+        <div class="rescue-stat-footer">Resolved & submitted to DMO</div>
+      </div>
+    </section>
+
+    <!-- 2. Assigned Incidents Table / Card Panel -->
+    <section class="rescue-panel" aria-label="Assigned Incidents List">
+      <div class="rescue-panel-header">
+        <div class="rescue-panel-title-area">
+          <h2 class="rescue-panel-title">Assigned Missions</h2>
+          <span class="rescue-count-badge" id="missionsCountBadge">0 Total</span>
+        </div>
+
+        <div class="rescue-filter-controls">
+          <!-- Search Box -->
+          <div class="rescue-search-box">
+            <svg class="rescue-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="missionSearchInput" class="rescue-search-input" placeholder="Search by ID, type, location...">
+          </div>
+
+          <!-- Status Filter Pills -->
+          <div class="rescue-filter-pills" id="filterPills">
+            <button type="button" class="filter-pill active" data-filter="all">All</button>
+            <button type="button" class="filter-pill" data-filter="NEW ASSIGNMENT">New</button>
+            <button type="button" class="filter-pill" data-filter="ACCEPTED">Accepted</button>
+            <button type="button" class="filter-pill" data-filter="IN PROGRESS">In Progress</button>
+            <button type="button" class="filter-pill" data-filter="COMPLETED">Completed</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Missions Table -->
+      <div class="rescue-table-responsive">
+        <table class="rescue-table" id="missionsTable">
+          <thead>
+            <tr>
+              <th scope="col">Incident ID</th>
+              <th scope="col">Incident Type</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Location</th>
+              <th scope="col">GPS Coordinates</th>
+              <th scope="col">Assignment Date</th>
+              <th scope="col">Current Status</th>
+              <th scope="col" style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="missionsTableBody">
+            <!-- Dynamic Mission Rows -->
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="rescue-empty-state" id="emptyState" style="display: none;">
+          <svg class="rescue-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          <h3 class="rescue-empty-title">No assigned missions</h3>
+          <p class="rescue-empty-desc">No missions match your current filter criteria.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       Modals
+       ========================================================================= -->
+
+  <!-- 1. Mission Details Modal -->
+  <div class="rescue-modal-backdrop" id="detailsModal">
+    <div class="rescue-modal-dialog">
+      <div class="rescue-modal-header">
+        <h3 class="rescue-modal-title" id="detailsModalTitle">Mission Details</h3>
+        <button type="button" class="rescue-modal-close" data-close-modal="detailsModal" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="rescue-modal-body" id="detailsModalBody">
+        <!-- Rendered dynamically by rescue-dashboard.js -->
+      </div>
+
+      <div class="rescue-modal-footer" id="detailsModalFooter">
+        <!-- Status-appropriate action buttons rendered dynamically -->
+        <button type="button" class="btn-modal-close" data-close-modal="detailsModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Decline Mission Modal -->
+  <div class="rescue-modal-backdrop" id="declineModal">
+    <div class="rescue-modal-dialog" style="max-width: 480px;">
+      <div class="rescue-modal-header">
+        <h3 class="rescue-modal-title" style="color: #DC2626;">Decline Mission Assignment</h3>
+        <button type="button" class="rescue-modal-close" data-close-modal="declineModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="rescue-modal-body">
+        <div class="rescue-form-group">
+          <label class="rescue-label" for="declineReasonInput">Reason for Declining (Mandatory) *</label>
+          <textarea id="declineReasonInput" class="rescue-textarea" placeholder="e.g., Unit engaged in emergency evacuation at Sector 4; equipment unavailable." rows="4" required></textarea>
+        </div>
+      </div>
+      <div class="rescue-modal-footer">
+        <button type="button" class="btn-modal-close" data-close-modal="declineModal">Cancel</button>
+        <button type="button" class="btn-modal-danger" id="btnConfirmDecline">Confirm Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Submit Response Notes Modal -->
+  <div class="rescue-modal-backdrop" id="notesModal">
+    <div class="rescue-modal-dialog" style="max-width: 520px;">
+      <div class="rescue-modal-header">
+        <h3 class="rescue-modal-title">Submit Field Response Notes</h3>
+        <button type="button" class="rescue-modal-close" data-close-modal="notesModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="rescue-modal-body">
+        <div class="rescue-form-group">
+          <label class="rescue-label" for="notesSiteAssessment">Site Assessment *</label>
+          <textarea id="notesSiteAssessment" class="rescue-textarea" placeholder="Describe on-site conditions, slope stability, mud flow..." rows="3" required></textarea>
+        </div>
+
+        <div class="rescue-form-group">
+          <label class="rescue-label" for="notesRoadPassability">Road Passability</label>
+          <select id="notesRoadPassability" class="rescue-select">
+            <option value="Passable">Passable (Normal)</option>
+            <option value="Partially Blocked">Partially Blocked (Single Lane)</option>
+            <option value="Completely Blocked">Completely Blocked</option>
+            <option value="Impassable">Impassable (Dangerous)</option>
+          </select>
+        </div>
+
+        <div class="rescue-form-group">
+          <label class="rescue-label" for="notesActionsTaken">Actions Taken So Far</label>
+          <textarea id="notesActionsTaken" class="rescue-textarea" placeholder="e.g., Debris cleared, warning cordons placed, traffic diverted..." rows="2"></textarea>
+        </div>
+      </div>
+      <div class="rescue-modal-footer">
+        <button type="button" class="btn-modal-close" data-close-modal="notesModal">Cancel</button>
+        <button type="button" class="btn-modal-forest" id="btnSaveNotes">Save Notes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Mark Completed Modal -->
+  <div class="rescue-modal-backdrop" id="completeModal">
+    <div class="rescue-modal-dialog" style="max-width: 520px;">
+      <div class="rescue-modal-header">
+        <h3 class="rescue-modal-title" style="color: #059669;">Complete Mission & Submit Outcome</h3>
+        <button type="button" class="rescue-modal-close" data-close-modal="completeModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="rescue-modal-body">
+        <div class="rescue-form-group">
+          <label class="rescue-label" for="outcomeResolutionSummary">Resolution Summary *</label>
+          <textarea id="outcomeResolutionSummary" class="rescue-textarea" placeholder="Describe resolution outcome, clearance status, and site safety..." rows="3" required></textarea>
+        </div>
+
+        <div class="rescue-form-group">
+          <label class="rescue-label" for="outcomeActionsPerformed">Operations Performed</label>
+          <textarea id="outcomeActionsPerformed" class="rescue-textarea" placeholder="e.g., Heavy machinery deployed, 40 tonnes debris removed, culvert cleared." rows="2"></textarea>
+        </div>
+      </div>
+      <div class="rescue-modal-footer">
+        <button type="button" class="btn-modal-close" data-close-modal="completeModal">Cancel</button>
+        <button type="button" class="btn-modal-success" id="btnConfirmComplete">Submit Completed Mission</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Team Profile & Operational Availability Modal -->
+  <div class="rescue-modal-backdrop" id="profileModal">
+    <div class="rescue-modal-dialog" style="max-width: 540px;">
+      <div class="rescue-modal-header">
+        <h3 class="rescue-modal-title">Team Profile &amp; Availability</h3>
+        <button type="button" class="rescue-modal-close" data-close-modal="profileModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="rescue-modal-body" id="profileModalBody">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="rescue-modal-footer">
+        <button type="button" class="btn-modal-close" data-close-modal="profileModal">Cancel</button>
+        <button type="button" class="btn-modal-forest" id="btnSaveAvailability">Save Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core JavaScript Services -->
+  <script src="js/core/config.js"></script>
+  <script src="js/core/content.js"></script>
+  <script src="js/core/format.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/api.js"></script>
+  <script src="js/core/ui.js"></script>
+  <script src="js/core/guard.js"></script>
+
+  <!-- Incident & Rescue Services -->
+  <script src="js/services/reports-storage.js"></script>
+  <script src="js/services/incidents-service.js"></script>
+
+  <!-- Simplified Rescue Dashboard Page Controller -->
+  <script src="js/pages/rescue-dashboard.js"></script>
+
+</body>
+</html>

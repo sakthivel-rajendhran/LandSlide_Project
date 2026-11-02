@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found | SlopeGuard</title>
+  <meta name="description" content="The requested geological surveillance route could not be found.">
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C96F4F'/><polygon points='4,32 16,14 24,32' fill='%232E3A2F'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shells.css">
+
+  <style>
+    .not-found-container {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .not-found-code {
+      font-family: var(--lw-font-mono);
+      font-size: 5rem;
+      font-weight: 800;
+      color: var(--lw-cta, #C96F4F);
+      line-height: 1;
+      margin-bottom: 12px;
+      letter-spacing: -0.04em;
+    }
+    .not-found-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      margin: 0 0 12px 0;
+    }
+    .not-found-desc {
+      font-size: 1rem;
+      color: var(--color-text-secondary);
+      max-width: 500px;
+      margin: 0 0 32px 0;
+      line-height: 1.6;
+    }
+    .not-found-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    @media (max-width: 480px) {
+      .not-found-container {
+        padding: 30px 16px;
+      }
+      .not-found-code {
+        font-size: 3.5rem;
+      }
+      .not-found-title {
+        font-size: 1.35rem;
+      }
+      .not-found-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .not-found-actions .lw-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body class="public-body">
+  <header class="public-header">
+    <div class="nav-container">
+      <div class="brand-group">
+        <a href="dashboard.html" class="logo-link">
+          <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+            <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+            <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+            <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+            <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+          </svg>
+          <span class="brand-text">Slope<span>Guard</span></span>
+        </a>
+      </div>
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="dashboard.html" class="nav-link">Risk Map</a>
+        <a href="dashboard.html?tab=alerts" class="nav-link">Alerts</a>
+        <a href="index.html" class="nav-link">About</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="login.html" class="btn-nav-login">Sign In</a>
+      </div>
+    </div>
+  </header>
+  <main class="not-found-container">
+    <div class="not-found-code">404</div>
+    <h1 class="not-found-title">Geological Route Not Found</h1>
+    <p class="not-found-desc">
+      The surveillance coordinate or dashboard destination you requested does not exist or may have been relocated within the telemetry registry.
+    </p>
+
+    <div class="not-found-actions">
+      <a href="dashboard.html" class="lw-btn lw-btn--primary">Return to Dashboard</a>
+      <a href="dashboard.html" class="lw-btn lw-btn--outline">Open Risk Map</a>
+      <a href="dashboard.html" class="lw-btn lw-btn--ghost" style="color: var(--lw-cta, #C96F4F);">Go to Dashboard &rarr;</a>
+    </div>
+  </main>
+
+  <footer style="background: #FAF8F2; border-top: 1px solid var(--lw-border, #D9C9B2); padding: 24px; text-align: center; font-size: 0.75rem; color: var(--color-text-muted);">
+    SlopeGuard — AI-Based Landslide Risk Monitoring for the North Eastern Region of India.
+  </footer>
+</body>
+</html>

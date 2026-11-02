@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+
+
+
+<html lang="en">
+
+
+
+<head>
+
+
+
+  <meta charset="UTF-8">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+  <title>Official Alerts — SlopeGuard Citizen Portal</title>
+
+
+
+  <meta name="description" content="Official civil protection warnings, road closures, and safety advisories issued by District Disaster Management Authorities.">
+
+
+
+
+
+
+
+  <!-- Favicon & PWA Manifest -->
+
+
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C7F464'/><polygon points='4,32 16,14 24,32' fill='%23294B32'/></svg>">
+
+
+
+  <link rel="manifest" href="manifest.webmanifest">
+
+
+
+  <meta name="theme-color" content="#2E3A2F">
+
+
+
+
+
+
+
+  <!-- Preconnect to Google Fonts -->
+
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+
+
+
+
+
+
+  <!-- Core Design System, Tokens, Components & Shells -->
+
+
+
+  <link rel="stylesheet" href="css/style.css">
+
+
+
+  <link rel="stylesheet" href="css/tokens.css">
+
+
+
+  <link rel="stylesheet" href="css/components.css">
+
+
+
+  <link rel="stylesheet" href="css/shells.css">
+
+
+
+  <link rel="stylesheet" href="css/pages/dashboard.css?v=2.0">
+
+
+
+
+
+
+
+  <!-- Immediate Authentication Guard -->
+
+
+
+  <script>
+
+
+
+    (function() {
+
+
+
+      function checkAuth() {
+        try {
+          var raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+          var user = raw ? JSON.parse(raw) : null;
+          if (!user) {
+            var page = window.location.pathname.split('/').pop() || 'alerts.html';
+            var next = encodeURIComponent(page + window.location.search);
+            window.location.replace("login.html?next=" + next);
+            return;
+          }
+          var role = (user.role || "").toUpperCase();
+          if (role === "ADMIN") {
+            window.location.replace("admin/dashboard.html");
+            return;
+          }
+          if (role === "OFFICER" || role === "RESCUE_FORCE") {
+            window.location.replace("rescue-dashboard.html");
+            return;
+          }
+        } catch (e) {
+          window.location.replace("login.html");
+        }
+      }
+      checkAuth();
+
+
+
+      window.addEventListener("pageshow", function(e) {
+
+
+
+        if (e.persisted) checkAuth();
+
+
+
+      });
+
+
+
+    })();
+
+
+
+  </script>
+
+
+
+
+
+
+
+</head>
+
+
+
+<body class="dashboard-root" data-shell="user">
+
+
+
+
+
+
+
+  <!-- Sidebar Navigation -->
+
+
+
+  <aside class="dashboard-sidebar" id="dashboardSidebar" aria-label="Sidebar Navigation">
+
+
+
+    <div class="sidebar-brand-header">
+
+
+
+      <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 28px; height: 28px;">
+
+
+
+        <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+
+
+
+        <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+
+
+
+        <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+
+
+
+        <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+
+
+
+        <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+
+
+
+      </svg>
+
+
+
+      <div class="sidebar-brand-name">Slope<span>Guard</span></div>
+
+
+
+      <span class="sidebar-brand-badge">NER</span>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <nav class="sidebar-nav">
+
+
+
+      <a href="dashboard.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+
+          <rect x="3" y="3" width="7" height="7"></rect>
+
+
+
+          <rect x="14" y="3" width="7" height="7"></rect>
+
+
+
+          <rect x="14" y="14" width="7" height="7"></rect>
+
+
+
+          <rect x="3" y="14" width="7" height="7"></rect>
+
+
+
+        </svg>
+
+
+
+        <span>Dashboard</span>
+
+
+
+      </a>
+
+
+
+
+
+
+
+      <a href="report-incident.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+
+
+
+          <circle cx="12" cy="13" r="4"></circle>
+
+
+
+        </svg>
+
+
+
+        <span>Report an Incident</span>
+
+
+
+      </a>
+
+
+
+
+
+
+
+      <a href="my-reports.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+
+
+
+          <polyline points="14 2 14 8 20 8"></polyline>
+
+
+
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+
+
+
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+
+
+
+        </svg>
+
+
+
+        <span>My Reports</span>
+
+
+
+      </a>
+
+
+
+
+
+
+
+      <a href="alerts.html" class="sidebar-nav-item active" style="text-decoration: none;">
+
+
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+
+
+
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+
+
+
+        </svg>
+
+
+
+        <span>Official Alerts</span>
+
+
+
+      </a>
+
+
+
+
+
+
+
+      <a href="profile.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+
+
+
+          <circle cx="12" cy="7" r="4"></circle>
+
+
+
+        </svg>
+
+
+
+        <span>Citizen Profile</span>
+
+
+
+      </a>
+
+
+
+    </nav>
+
+
+
+
+
+
+
+    <!-- Sidebar Bottom / User Card -->
+
+
+
+    <div class="sidebar-footer">
+
+
+
+      <div class="sidebar-user-card">
+
+
+
+        <div class="sidebar-user-avatar" id="sidebarAvatar">C</div>
+
+
+
+        <div class="sidebar-user-info">
+
+
+
+          <div class="sidebar-user-name" id="sidebarName">Citizen Observer</div>
+
+
+
+          <div class="sidebar-user-role" id="sidebarRole">CITIZEN &bull; Registered Monitor</div>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <button type="button" class="btn-sidebar-logout" id="sidebarLogout" data-action="logout">
+
+
+
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+
+
+
+        <span>Sign Out</span>
+
+
+
+      </button>
+
+
+
+    </div>
+
+
+
+  </aside>
+
+
+
+
+
+
+
+  <!-- Main Content Wrapper -->
+
+
+
+  <div class="dashboard-main-wrapper">
+
+
+
+    <header class="dashboard-topbar">
+
+
+
+      <div class="topbar-left">
+
+
+
+        <button type="button" class="topbar-mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+
+
+
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+
+
+
+        </button>
+
+
+
+        <div class="topbar-breadcrumbs">
+
+
+
+          <span class="topbar-breadcrumbs-root">SlopeGuard Citizen</span>
+
+
+
+          <span class="topbar-breadcrumbs-sep">/</span>
+
+
+
+          <span class="topbar-breadcrumbs-current">Official Alerts</span>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="topbar-right">
+
+
+
+        <div id="bellSlot"></div>
+
+
+
+        <span class="status-indicator-badge live" style="font-size: 0.75rem; color: #2E3A2F;">
+
+
+
+          <span class="pulse-dot" style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #6B7F5B; margin-right: 6px;"></span>
+
+
+
+          Official DDMA Feed Active
+
+
+
+        </span>
+
+
+
+      </div>
+
+
+
+    </header>
+
+
+
+
+
+
+
+    <main class="dashboard-body-container">
+
+
+
+
+
+
+
+      <!-- Page Heading Block -->
+
+
+
+      <section class="dashboard-heading-block">
+
+
+
+        <div class="heading-title-group">
+
+
+
+          <h1>Official Alerts</h1>
+
+
+
+          <p class="heading-subtitle">Official civil protection advisories, landslide warnings, and road safety alerts issued by District Authorities.</p>
+
+
+
+        </div>
+
+
+
+        <div class="heading-actions-group">
+
+
+
+          <a href="report-incident.html" class="btn-dashboard-primary">
+
+
+
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+
+
+
+            <span>Report an Incident</span>
+
+
+
+          </a>
+
+
+
+        </div>
+
+
+
+      </section>
+
+
+
+
+
+
+
+      <!-- Panel Card: Civil Protection Advisories -->
+
+
+
+      <section class="dashboard-panel-card">
+
+
+
+        <div class="panel-header">
+
+
+
+          <h2 class="panel-title">
+
+
+
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C96F4F" stroke-width="2.2">
+
+
+
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+
+
+
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+
+
+
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+
+
+
+            </svg>
+
+
+
+            Active Civil Protection Advisories
+
+
+
+          </h2>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- Filter & Search Controls -->
+
+
+
+        <div class="citizen-controls-bar">
+
+
+
+          <div class="citizen-search-box">
+
+
+
+            <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #5E6F5C; pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+
+
+              <circle cx="11" cy="11" r="8"></circle>
+
+
+
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+
+
+            </svg>
+
+
+
+            <input type="text" id="alertsSearchInput" class="citizen-search-input" placeholder="Filter advisories by sector, road, or title..." />
+
+
+
+          </div>
+
+
+
+
+
+
+
+          <div class="filter-pills-bar" id="severityFilterBar" style="flex: 1; justify-content: flex-end;">
+
+
+
+            <button type="button" class="filter-pill active" data-severity="all">All (<span id="countAlertsAll">0</span>)</button>
+
+
+
+            <button type="button" class="filter-pill" data-severity="high">High &amp; Critical (<span id="countAlertsHigh">0</span>)</button>
+
+
+
+            <button type="button" class="filter-pill" data-severity="medium">Medium (<span id="countAlertsMedium">0</span>)</button>
+
+
+
+            <button type="button" class="filter-pill" data-severity="low">Low (<span id="countAlertsLow">0</span>)</button>
+
+
+
+          </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- Alerts List Container -->
+
+
+
+        <div id="alertsFeedContainer">
+
+
+
+          <div style="padding: 40px; text-align: center; color: #5E6F5C;">
+
+
+
+            Loading official early warning advisories...
+
+
+
+          </div>
+
+
+
+        </div>
+
+
+
+      </section>
+
+
+
+
+
+
+
+    </main>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Scripts -->
+
+
+
+  <script src="js/core/config.js"></script>
+
+
+
+  <script src="js/core/content.js"></script>
+
+
+
+  <script src="js/core/format.js"></script>
+
+
+
+  <script src="js/core/store.js"></script>
+
+
+
+  <script src="js/core/api.js"></script>
+
+
+
+  <script src="js/core/ui.js"></script>
+
+
+
+  <script src="js/core/guard.js"></script>
+
+
+
+  <script src="js/core/auth.js"></script>
+
+
+
+  <script src="js/components/bell.js"></script>
+
+
+
+
+
+
+
+  <script>
+
+
+
+    document.addEventListener("DOMContentLoaded", async () => {
+
+
+
+      // 1. User Header
+
+
+
+      const user = window.LW.authService?.getCurrentUser() || (function() {
+
+
+
+        try {
+
+
+
+          const raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+
+
+
+          return raw ? JSON.parse(raw) : null;
+
+
+
+        } catch (e) { return null; }
+
+
+
+      })();
+
+
+
+
+
+
+
+      if (user) {
+
+
+
+        const name = user.fullName || user.name || "Citizen Observer";
+
+
+
+        document.getElementById("sidebarName").textContent = name;
+
+
+
+        document.getElementById("sidebarRole").innerHTML = `CITIZEN &bull; Registered Monitor`;
+
+
+
+        document.getElementById("sidebarAvatar").textContent = name.charAt(0).toUpperCase();
+
+
+
+      }
+
+
+
+
+
+
+
+      const bellSlot = document.getElementById("bellSlot");
+
+
+
+      if (bellSlot && window.LW.bell) window.LW.bell.mount(bellSlot);
+
+
+
+
+
+
+
+      document.getElementById("sidebarLogout")?.addEventListener("click", () => {
+
+
+
+        window.LW.authService?.logout();
+
+
+
+        window.location.replace("login.html");
+
+
+
+      });
+
+
+
+
+
+
+
+      document.getElementById("mobileToggle")?.addEventListener("click", () => {
+
+
+
+        document.getElementById("dashboardSidebar")?.classList.toggle("mobile-open");
+
+
+
+      });
+
+
+
+
+
+
+
+      // 2. Fetch Alerts from GET /api/public/alerts
+
+
+
+      let allAlerts = [];
+
+
+
+      let activeSeverity = "all";
+
+
+
+      let activeSearch = "";
+
+
+
+
+
+
+
+      async function loadAlerts() {
+
+
+
+        try {
+
+
+
+          const res = await (window.LW?.api?.get ? window.LW.api.get("/api/public/alerts") : fetchAlertsDirect());
+
+
+
+          allAlerts = Array.isArray(res) ? res : [];
+
+
+
+        } catch (err) {
+
+
+
+          console.error("Error fetching alerts:", err);
+
+
+
+          allAlerts = [];
+
+
+
+        }
+
+
+
+        updateCounts();
+
+
+
+        render();
+
+
+
+      }
+
+
+
+
+
+
+
+      async function fetchAlertsDirect() {
+
+
+
+        const token = sessionStorage.getItem("sg_token") || localStorage.getItem("sg_token");
+
+
+
+        const headers = { "Accept": "application/json" };
+
+
+
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+
+
+        const res = await fetch("http://localhost:8080/api/public/alerts", { headers });
+
+
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+
+
+        return await res.json();
+
+
+
+      }
+
+
+
+
+
+
+
+      function normalizeSev(sev) {
+
+
+
+        const s = String(sev || "info").toLowerCase();
+
+
+
+        if (s === "critical" || s === "high") return "high";
+
+
+
+        if (s === "medium" || s === "moderate") return "medium";
+
+
+
+        return "low";
+
+
+
+      }
+
+
+
+
+
+
+
+      function updateCounts() {
+
+
+
+        document.getElementById("countAlertsAll").textContent = allAlerts.length;
+
+
+
+        document.getElementById("countAlertsHigh").textContent = allAlerts.filter(a => normalizeSev(a.severity) === "high").length;
+
+
+
+        document.getElementById("countAlertsMedium").textContent = allAlerts.filter(a => normalizeSev(a.severity) === "medium").length;
+
+
+
+        document.getElementById("countAlertsLow").textContent = allAlerts.filter(a => normalizeSev(a.severity) === "low").length;
+
+
+
+      }
+
+
+
+
+
+
+
+      function render() {
+
+
+
+        const container = document.getElementById("alertsFeedContainer");
+
+
+
+        let filtered = allAlerts;
+
+
+
+
+
+
+
+        if (activeSeverity !== "all") {
+
+
+
+          filtered = filtered.filter(a => normalizeSev(a.severity) === activeSeverity);
+
+
+
+        }
+
+
+
+
+
+
+
+        if (activeSearch && activeSearch.trim()) {
+
+
+
+          const q = activeSearch.toLowerCase().trim();
+
+
+
+          filtered = filtered.filter(a => {
+
+
+
+            const title = String(a.title || '').toLowerCase();
+
+
+
+            const area = String(a.areaName || a.area_name || a.location || '').toLowerCase();
+
+
+
+            const desc = String(a.description || a.message || '').toLowerCase();
+
+
+
+            const actions = String(a.recommendedActions || a.recommended_actions || '').toLowerCase();
+
+
+
+            return title.includes(q) || area.includes(q) || desc.includes(q) || actions.includes(q);
+
+
+
+          });
+
+
+
+        }
+
+
+
+
+
+
+
+        if (filtered.length === 0) {
+
+
+
+          container.innerHTML = `
+
+
+
+            <div style="background: #FFFFFF; border: 1px dashed #D9C9B2; border-radius: 6px; padding: 40px 20px; text-align: center;">
+
+
+
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #6B7F5B; margin-bottom: 8px;"></span>
+
+
+
+              <h3 style="color: #2E3A2F; margin: 0 0 6px 0; font-size: 1rem; font-weight: 700;">
+
+
+
+                ${activeSearch ? 'No matching alerts found' : 'No active official alerts at this time. All sectors are clear.'}
+
+
+
+              </h3>
+
+
+
+              <p style="color: #4A5D48; margin: 0; font-size: 0.8125rem;">
+
+
+
+                ${activeSearch ? `No advisories matched "${activeSearch}".` : 'When emergency civil protection notices are issued by authorities, they will appear here.'}
+
+
+
+              </p>
+
+
+
+            </div>
+
+
+
+          `;
+
+
+
+          return;
+
+
+
+        }
+
+
+
+
+
+
+
+        container.innerHTML = filtered.map(a => {
+
+
+
+          const rawSev = (a.severity || "INFO").toUpperCase();
+
+
+
+          const sevClass = normalizeSev(a.severity);
+
+
+
+          const timeStr = a.published_at || a.publishedAt || a.timestamp || a.issuedAt || a.created_at || new Date().toISOString();
+
+
+
+          const formattedDate = new Date(timeStr).toLocaleDateString(undefined, {
+
+
+
+            month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit"
+
+
+
+          });
+
+
+
+          const area = a.area_name || a.areaName || a.location || a.region || "District Sector";
+
+
+
+          const title = a.title || "Civil Protection Advisory";
+
+
+
+          const desc = a.description || a.message || "";
+
+
+
+          const actions = (a.recommended_actions || a.recommendedActions || "").trim();
+
+
+
+          const status = (a.status || "ACTIVE").toUpperCase();
+
+
+
+
+
+
+
+          const isHigh = sevClass === "high";
+
+
+
+
+
+
+
+          return `
+
+
+
+            <div class="alert-card-item severity-${sevClass}">
+
+
+
+              <div class="alert-top-row">
+
+
+
+                <div class="alert-badges-group">
+
+
+
+                  <span class="citizen-alert-badge ${sevClass === 'high' ? 'critical' : (sevClass === 'medium' ? 'moderate' : 'info')}">
+
+
+
+                    ${isHigh ? '⚠️ ' : ''}${escapeHtml(rawSev)} SEVERITY
+
+
+
+                  </span>
+
+
+
+                  <span class="citizen-alert-badge" style="background: #E8F5E9; color: #166534; border: 1px solid #A5D6A7;">
+
+
+
+                    ${escapeHtml(status)}
+
+
+
+                  </span>
+
+
+
+                </div>
+
+
+
+                <span style="font-size: 0.775rem; color: #5E6F5C;">Published: ${formattedDate}</span>
+
+
+
+              </div>
+
+
+
+
+
+
+
+              <h2 class="alert-title-text">${escapeHtml(title)}</h2>
+
+
+
+
+
+
+
+              <div class="alert-location-line">
+
+
+
+                <img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 14px; width: 14px; object-fit: contain; vertical-align: -2px; margin-right: 5px;" />
+
+
+
+                <span>Affected Location: <strong>${escapeHtml(area)}</strong></span>
+
+
+
+              </div>
+
+
+
+
+
+
+
+              ${desc ? `<p class="alert-desc-text">${escapeHtml(desc)}</p>` : ''}
+
+
+
+
+
+
+
+              ${actions ? `
+
+
+
+                <div class="alert-instructions-box">
+
+
+
+                  <strong>Official Safety Instructions:</strong> ${escapeHtml(actions)}
+
+
+
+                </div>
+
+
+
+              ` : ''}
+
+
+
+            </div>
+
+
+
+          `;
+
+
+
+        }).join("");
+
+
+
+      }
+
+
+
+
+
+
+
+      function escapeHtml(str) {
+
+
+
+        if (str == null) return "";
+
+
+
+        return String(str)
+
+
+
+          .replace(/&/g, "&amp;")
+
+
+
+          .replace(/</g, "&lt;")
+
+
+
+          .replace(/>/g, "&gt;")
+
+
+
+          .replace(/"/g, "&quot;")
+
+
+
+          .replace(/'/g, "&#039;");
+
+
+
+      }
+
+
+
+
+
+
+
+      // Filter pills
+
+
+
+      document.querySelectorAll("#severityFilterBar .filter-pill").forEach(pill => {
+
+
+
+        pill.onclick = () => {
+
+
+
+          document.querySelectorAll("#severityFilterBar .filter-pill").forEach(p => p.classList.remove("active"));
+
+
+
+          pill.classList.add("active");
+
+
+
+          activeSeverity = pill.dataset.severity || "all";
+
+
+
+          render();
+
+
+
+        };
+
+
+
+      });
+
+
+
+
+
+
+
+      // Search input
+
+
+
+      const searchInput = document.getElementById("alertsSearchInput");
+
+
+
+      let searchTimer = null;
+
+
+
+      if (searchInput) {
+
+
+
+        searchInput.addEventListener("input", (e) => {
+
+
+
+          clearTimeout(searchTimer);
+
+
+
+          searchTimer = setTimeout(() => {
+
+
+
+            activeSearch = e.target.value.trim();
+
+
+
+            render();
+
+
+
+          }, 150);
+
+
+
+        });
+
+
+
+      }
+
+
+
+
+
+
+
+      await loadAlerts();
+
+
+
+    });
+
+
+
+  </script>
+
+
+
+</body>
+
+
+
+</html>
+
+
+
+
+
+
+

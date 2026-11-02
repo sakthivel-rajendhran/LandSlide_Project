@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Report an Incident — SlopeGuard Citizen Portal</title>
+
+  <meta name="description" content="Report road blockages, fallen rocks, landslide debris, and slope fissures with GPS location and photo evidence.">
+
+
+
+  <!-- Favicon & PWA Manifest -->
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C7F464'/><polygon points='4,32 16,14 24,32' fill='%23294B32'/></svg>">
+
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <meta name="theme-color" content="#2E3A2F">
+
+
+
+  <!-- Preconnect to Google Fonts -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+
+
+  <!-- Leaflet CSS -->
+
+  <link rel="stylesheet" href="css/leaflet.css">
+
+
+
+  <!-- Core Design System, Tokens, Components & Shells -->
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="stylesheet" href="css/tokens.css">
+
+  <link rel="stylesheet" href="css/components.css">
+
+  <link rel="stylesheet" href="css/shells.css">
+
+  <link rel="stylesheet" href="css/pages/dashboard.css?v=2.0">
+
+
+
+  <!-- Immediate Authentication Guard -->
+
+  <script>
+
+    (function() {
+
+      function checkAuth() {
+        try {
+          var raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+          var user = raw ? JSON.parse(raw) : null;
+          if (!user) {
+            var page = window.location.pathname.split('/').pop() || 'report-incident.html';
+            var next = encodeURIComponent(page + window.location.search);
+            window.location.replace("login.html?next=" + next);
+            return;
+          }
+          var role = (user.role || "").toUpperCase();
+          if (role === "ADMIN") {
+            window.location.replace("admin/dashboard.html");
+            return;
+          }
+          if (role === "OFFICER" || role === "RESCUE_FORCE") {
+            window.location.replace("rescue-dashboard.html");
+            return;
+          }
+        } catch (e) {
+          window.location.replace("login.html");
+        }
+      }
+      checkAuth();
+
+      window.addEventListener("pageshow", function(e) {
+
+        if (e.persisted) checkAuth();
+
+      });
+
+    })();
+
+  </script>
+
+
+
+  <style>
+
+    /* 5-Step Workflow Layout */
+
+    .workflow-step-card {
+
+      background: #FFFFFF;
+
+      border: 1px solid #D9C9B2;
+
+      border-radius: 6px;
+
+      padding: 24px;
+
+      margin-bottom: 24px;
+
+      box-shadow: 0 1px 3px rgba(46, 58, 47, 0.06);
+
+    }
+
+    .workflow-step-header {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+      margin-bottom: 16px;
+
+      border-bottom: 1px solid #D9C9B2;
+
+      padding-bottom: 12px;
+
+    }
+
+    .workflow-step-num {
+
+      width: 28px;
+
+      height: 28px;
+
+      border-radius: 50%;
+
+      background: #2E3A2F;
+
+      color: #F8F6EE;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 0.8125rem;
+
+      font-weight: 800;
+
+      flex-shrink: 0;
+
+    }
+
+    .workflow-step-title {
+
+      font-size: 1.05rem;
+
+      font-weight: 800;
+
+      color: #2E3A2F;
+
+      margin: 0;
+
+    }
+
+    .workflow-step-desc {
+
+      font-size: 0.8125rem;
+
+      color: #4A5D48;
+
+      margin: 0 0 16px 0;
+
+      line-height: 1.45;
+
+    }
+
+
+
+    /* Category Selector Grid */
+
+    .category-cards-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(5, 1fr);
+
+      gap: 12px;
+
+      margin-bottom: 8px;
+
+    }
+
+    @media (max-width: 992px) {
+
+      .category-cards-grid {
+
+        grid-template-columns: repeat(3, 1fr);
+
+      }
+
+    }
+
+    @media (max-width: 600px) {
+
+      .category-cards-grid {
+
+        grid-template-columns: 1fr 1fr;
+
+      }
+
+    }
+
+
+
+    .category-card-btn {
+
+      background: #F8F6EE;
+
+      border: 2px solid #D9C9B2;
+
+      border-radius: 6px;
+
+      padding: 16px 12px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      text-align: center;
+
+      cursor: pointer;
+
+      transition: all 0.15s ease;
+
+      color: #2E3A2F;
+
+      font-family: inherit;
+
+    }
+
+    .category-card-btn:hover {
+
+      border-color: #6B7F5B;
+
+      background: #FFFFFF;
+
+    }
+
+    .category-card-btn.selected {
+
+      border-color: #C96F4F;
+
+      background: #FFFFFF;
+
+      box-shadow: 0 0 0 2px rgba(201, 111, 79, 0.25);
+
+    }
+
+    .category-card-icon {
+
+      width: 44px;
+
+      height: 44px;
+
+      border-radius: 8px;
+
+      background: #FFFFFF;
+
+      border: 1px solid #D9C9B2;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      margin-bottom: 10px;
+
+      color: #2E3A2F;
+
+      transition: all 0.15s ease;
+
+    }
+
+    .category-card-btn.selected .category-card-icon {
+
+      background: #C96F4F;
+
+      border-color: #C96F4F;
+
+      color: #FFFFFF;
+
+    }
+
+    .category-card-name {
+
+      font-size: 0.875rem;
+
+      font-weight: 700;
+
+      margin-bottom: 2px;
+
+    }
+
+    .category-card-sub {
+
+      font-size: 0.6875rem;
+
+      color: #5E6F5C;
+
+    }
+
+
+
+    /* Passability Options */
+
+    .passability-row {
+
+      display: grid;
+
+      grid-template-columns: repeat(3, 1fr);
+
+      gap: 10px;
+
+      margin-top: 8px;
+
+    }
+
+    @media (max-width: 600px) {
+
+      .passability-row {
+
+        grid-template-columns: 1fr;
+
+      }
+
+    }
+
+    .passability-option {
+
+      background: #F8F6EE;
+
+      border: 1px solid #D9C9B2;
+
+      border-radius: 4px;
+
+      padding: 10px 12px;
+
+      cursor: pointer;
+
+      font-size: 0.8125rem;
+
+      font-weight: 600;
+
+      color: #2E3A2F;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      transition: all 0.15s ease;
+
+    }
+
+    .passability-option:hover {
+
+      background: #FFFFFF;
+
+      border-color: #6B7F5B;
+
+    }
+
+    .passability-option.selected {
+
+      background: #FFFFFF;
+
+      border-color: #C96F4F;
+
+      box-shadow: 0 0 0 2px rgba(201, 111, 79, 0.2);
+
+    }
+
+
+
+    /* Live Summary Card */
+
+    .review-summary-box {
+
+      background: #F8F6EE;
+
+      border: 1px solid #D9C9B2;
+
+      border-radius: 6px;
+
+      padding: 16px;
+
+      margin-bottom: 20px;
+
+    }
+
+    .review-summary-row {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: flex-start;
+
+      padding: 6px 0;
+
+      border-bottom: 1px solid rgba(217, 201, 178, 0.6);
+
+      font-size: 0.8125rem;
+
+    }
+
+    .review-summary-row:last-child {
+
+      border-bottom: none;
+
+    }
+
+    .review-summary-label {
+
+      color: #4A5D48;
+
+      font-weight: 600;
+
+    }
+
+    .review-summary-val {
+
+      color: #2E3A2F;
+
+      font-weight: 700;
+
+      text-align: right;
+
+      max-width: 60%;
+
+    }
+
+
+
+    /* Form Fields */
+
+    .form-group {
+
+      margin-bottom: 16px;
+
+    }
+
+    .form-label {
+
+      display: block;
+
+      font-size: 0.8125rem;
+
+      font-weight: 700;
+
+      color: #2E3A2F;
+
+      margin-bottom: 6px;
+
+    }
+
+    .form-label .req {
+
+      color: #B84B29;
+
+      margin-left: 2px;
+
+    }
+
+    .form-input, .form-textarea {
+
+      width: 100%;
+
+      box-sizing: border-box;
+
+      padding: 10px 14px;
+
+      background: #FFFFFF;
+
+      border: 1px solid #D9C9B2;
+
+      border-radius: 4px;
+
+      color: #2E3A2F;
+
+      font-size: 0.875rem;
+
+      font-family: inherit;
+
+      outline: none;
+
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    }
+
+    .form-input:focus, .form-textarea:focus {
+
+      border-color: #C96F4F;
+
+      box-shadow: 0 0 0 2px rgba(201, 111, 79, 0.2);
+
+    }
+
+    .form-input.error, .form-textarea.error {
+
+      border-color: #B84B29;
+
+      box-shadow: 0 0 0 2px rgba(184, 75, 41, 0.2);
+
+    }
+
+    .form-inline-error {
+
+      color: #B84B29;
+
+      font-size: 0.75rem;
+
+      font-weight: 600;
+
+      margin-top: 4px;
+
+      display: none;
+
+    }
+
+    .form-hint {
+
+      font-size: 0.75rem;
+
+      color: #5E6F5C;
+
+      margin-top: 4px;
+
+    }
+
+
+
+    /* Map selection */
+
+    .location-map-wrap {
+
+      border: 1px solid #D9C9B2;
+
+      border-radius: 4px;
+
+      overflow: hidden;
+
+      margin-top: 12px;
+
+    }
+
+    .location-map-canvas {
+
+      height: 320px;
+
+      width: 100%;
+
+      background: #F8F6EE;
+
+    }
+
+    .location-bar {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      padding: 10px 14px;
+
+      background: #F8F6EE;
+
+      border-top: 1px solid #D9C9B2;
+
+      font-size: 0.75rem;
+
+      color: #4A5D48;
+
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+    }
+
+
+
+    /* Upload zone */
+
+    .photo-drop-box {
+
+      border: 2px dashed #D9C9B2;
+
+      border-radius: 6px;
+
+      padding: 24px 16px;
+
+      text-align: center;
+
+      background: #F8F6EE;
+
+      transition: all 0.15s ease;
+
+    }
+
+    .photo-drop-box.dragover {
+
+      border-color: #C96F4F;
+
+      background: rgba(201, 111, 79, 0.06);
+
+    }
+
+    .photo-previews-list {
+
+      display: grid;
+
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+
+      gap: 12px;
+
+      margin-top: 14px;
+
+    }
+
+    .photo-thumb-card {
+
+      position: relative;
+
+      background: #FFFFFF;
+
+      border: 1px solid #D9C9B2;
+
+      border-radius: 4px;
+
+      height: 110px;
+
+      overflow: hidden;
+
+    }
+
+    .photo-thumb-card img {
+
+      width: 100%;
+
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+
+    }
+
+    .photo-thumb-remove {
+
+      position: absolute;
+
+      top: 4px;
+
+      right: 4px;
+
+      background: rgba(46, 58, 47, 0.85);
+
+      border: none;
+
+      color: #FFFFFF;
+
+      border-radius: 4px;
+
+      width: 24px;
+
+      height: 24px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      cursor: pointer;
+
+      font-size: 1rem;
+
+      line-height: 1;
+
+    }
+
+    .photo-thumb-remove:hover {
+
+      background: #B84B29;
+
+    }
+
+  </style>
+
+</head>
+
+<body class="dashboard-root" data-shell="user">
+
+
+
+  <!-- Sidebar Navigation -->
+
+  <aside class="dashboard-sidebar" id="dashboardSidebar" aria-label="Sidebar Navigation">
+
+    <div class="sidebar-brand-header">
+
+      <svg class="logo-icon-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width: 28px; height: 28px;">
+
+        <polygon points="4,32 16,14 24,32" fill="#2E3A2F" />
+
+        <polygon points="12,32 23,6 34,32" fill="#C96F4F" />
+
+        <polygon points="23,6 23,24 16,32" fill="#2E3A2F" />
+
+        <polygon points="23,6 30,19 23,24" fill="#D9C9B2" />
+
+        <polygon points="21,32 30,17 38,32" fill="#6B7F5B" />
+
+      </svg>
+
+      <div class="sidebar-brand-name">Slope<span>Guard</span></div>
+
+      <span class="sidebar-brand-badge">NER</span>
+
+    </div>
+
+
+
+    <nav class="sidebar-nav">
+
+      <a href="dashboard.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+          <rect x="3" y="3" width="7" height="7"></rect>
+
+          <rect x="14" y="3" width="7" height="7"></rect>
+
+          <rect x="14" y="14" width="7" height="7"></rect>
+
+          <rect x="3" y="14" width="7" height="7"></rect>
+
+        </svg>
+
+        <span>Dashboard</span>
+
+      </a>
+
+
+
+      <a href="report-incident.html" class="sidebar-nav-item active" style="text-decoration: none;">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+
+          <circle cx="12" cy="13" r="4"></circle>
+
+        </svg>
+
+        <span>Report an Incident</span>
+
+      </a>
+
+
+
+      <a href="my-reports.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+
+          <polyline points="14 2 14 8 20 8"></polyline>
+
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+
+        </svg>
+
+        <span>My Reports</span>
+
+      </a>
+
+
+
+      <a href="alerts.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+
+        </svg>
+
+        <span>Official Alerts</span>
+
+      </a>
+
+
+
+      <a href="profile.html" class="sidebar-nav-item" style="text-decoration: none;">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+
+          <circle cx="12" cy="7" r="4"></circle>
+
+        </svg>
+
+        <span>Citizen Profile</span>
+
+      </a>
+
+    </nav>
+
+
+
+    <!-- Sidebar Bottom / User Card -->
+
+    <div class="sidebar-footer">
+
+      <div class="sidebar-user-card">
+
+        <div class="sidebar-user-avatar" id="sidebarAvatar">C</div>
+
+        <div class="sidebar-user-info">
+
+          <div class="sidebar-user-name" id="sidebarName">Citizen Observer</div>
+
+          <div class="sidebar-user-role" id="sidebarRole">CITIZEN &bull; Registered Monitor</div>
+
+        </div>
+
+      </div>
+
+      <button type="button" class="btn-sidebar-logout" id="sidebarLogout" data-action="logout">
+
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+
+        <span>Sign Out</span>
+
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- Main Content Wrapper -->
+
+  <div class="dashboard-main-wrapper">
+
+    <header class="dashboard-topbar">
+
+      <div class="topbar-left">
+
+        <button type="button" class="topbar-mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+
+        </button>
+
+        <div class="topbar-breadcrumbs">
+
+          <span class="topbar-breadcrumbs-root">SlopeGuard Citizen</span>
+
+          <span class="topbar-breadcrumbs-sep">/</span>
+
+          <span class="topbar-breadcrumbs-current">Report an Incident</span>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="topbar-right">
+
+        <div id="bellSlot"></div>
+
+        <a href="my-reports.html" class="lw-btn lw-btn--sm lw-btn--outline" style="text-decoration: none;">
+
+          Track My Reports &rarr;
+
+        </a>
+
+      </div>
+
+    </header>
+
+
+
+    <main class="dashboard-body-container">
+
+
+
+      <!-- Heading Block -->
+
+      <section class="dashboard-heading-block">
+
+        <div class="heading-title-group">
+
+          <h1>Report an Incident</h1>
+
+          <p class="heading-subtitle">Submit geotechnical observations, photos, and GPS location directly to local disaster response teams.</p>
+
+        </div>
+
+        <div class="heading-actions-group">
+
+          <a href="my-reports.html" class="lw-btn lw-btn--sm lw-btn--outline" style="text-decoration: none;">
+
+            Track My Reports &rarr;
+
+          </a>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- Safety Notice -->
+
+      <div class="emergency-safety-banner" role="alert" style="background: #FFF8F6; border: 1px solid #D9C9B2; border-left: 4px solid #B84B29; border-radius: 6px; padding: 14px 18px; margin-bottom: 24px; display: flex; gap: 14px; align-items: flex-start;">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B84B29" stroke-width="2.5" style="width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px;">
+
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+
+        </svg>
+
+        <div>
+
+          <strong style="color: #B84B29; font-size: 0.875rem; display: block; margin-bottom: 2px;">Emergency Life Safety Reminder:</strong>
+
+          <p style="margin: 0; font-size: 0.8125rem; color: #4A5D48; line-height: 1.45;">
+
+            If you are in immediate danger, evacuate immediately to safe ground. Do not enter an active slide path or approach hazardous rockfaces to take photos.
+
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Actionable Error Banner -->
+
+      <div id="formErrorBanner" style="display: none; background: #FFF8F6; border: 1px solid #B84B29; border-radius: 4px; padding: 12px 16px; margin-bottom: 20px; color: #B84B29; font-size: 0.8125rem; font-weight: 600;"></div>
+
+
+
+      <!-- 5-STEP INCIDENT REPORTING FORM -->
+
+      <form id="incidentForm" novalidate>
+
+
+
+        <!-- STEP 1: SELECT INCIDENT CATEGORY -->
+
+        <div class="workflow-step-card">
+
+          <div class="workflow-step-header">
+
+            <div class="workflow-step-num">1</div>
+
+            <div>
+
+              <h2 class="workflow-step-title">Select Incident Category <span style="color: #B84B29;">*</span></h2>
+
+            </div>
+
+          </div>
+
+          <p class="workflow-step-desc">
+
+            Choose the category that best describes the hazardous slope observation.
+
+          </p>
+
+
+
+          <div class="category-cards-grid" role="radiogroup" aria-label="Incident Categories" style="grid-template-columns: repeat(4, 1fr);">
+
+            <!-- 1. Landslide -->
+
+            <button type="button" class="category-card-btn selected" data-category="Landslide" data-backend="LANDSLIDE" role="radio" aria-checked="true">
+
+              <div class="category-card-icon">
+
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18L13 4l-4 7-3-3z"></path></svg>
+
+              </div>
+
+              <span class="category-card-name">Landslide</span>
+
+              <span class="category-card-sub">Slope slip / mud</span>
+
+            </button>
+
+
+
+            <!-- 2. Road Blockage -->
+
+            <button type="button" class="category-card-btn" data-category="Road Blockage" data-backend="ROAD_SUBSIDENCE" role="radio" aria-checked="false">
+
+              <div class="category-card-icon">
+
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="6" rx="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+
+              </div>
+
+              <span class="category-card-name">Road Blockage</span>
+
+              <span class="category-card-sub">Carriageway blocked</span>
+
+            </button>
+
+
+
+            <!-- 3. Ground Crack -->
+
+            <button type="button" class="category-card-btn" data-category="Ground Crack" data-backend="SLOPE_CRACK" role="radio" aria-checked="false">
+
+              <div class="category-card-icon">
+
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M4 9l8 4 8-4M4 15l8 4 8-4"></path></svg>
+
+              </div>
+
+              <span class="category-card-name">Ground Crack</span>
+
+              <span class="category-card-sub">Fissures / movement</span>
+
+            </button>
+
+
+
+            <!-- 4. Rockfall -->
+
+            <button type="button" class="category-card-btn" data-category="Rockfall" data-backend="ROCKFALL" role="radio" aria-checked="false">
+
+              <div class="category-card-icon">
+
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="4"></circle><circle cx="16" cy="14" r="5"></circle></svg>
+
+              </div>
+
+              <span class="category-card-name">Rockfall</span>
+
+              <span class="category-card-sub">Rockfall hazard</span>
+
+            </button>
+
+          </div>
+
+
+
+          <input type="hidden" id="selectedCategory" value="Landslide" />
+
+          <input type="hidden" id="selectedBackendCategory" value="LANDSLIDE" />
+
+          <div class="form-inline-error" id="categoryError">Please select an incident category.</div>
+
+        </div>
+
+
+
+        <!-- STEP 2: UPLOAD PHOTOS -->
+
+        <div class="workflow-step-card">
+
+          <div class="workflow-step-header">
+
+            <div class="workflow-step-num">2</div>
+
+            <div>
+
+              <h2 class="workflow-step-title">Upload Photos</h2>
+
+            </div>
+
+          </div>
+
+          <p class="workflow-step-desc">
+
+            Attach photo evidence of the observed slope condition. Images are validated and uploaded directly to the disaster management archive.
+
+          </p>
+
+
+
+          <div class="photo-drop-box" id="photoDropBox">
+
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6B7F5B" stroke-width="2" style="margin-bottom: 8px;">
+
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+
+              <polyline points="17 8 12 3 7 8"></polyline>
+
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+
+            </svg>
+
+            <div style="font-size: 0.9375rem; font-weight: 700; color: #2E3A2F; margin-bottom: 4px;">
+
+              Drag & drop photos or select from device
+
+            </div>
+
+            <div style="font-size: 0.75rem; color: #5E6F5C; margin-bottom: 14px;">
+
+              JPEG, PNG, or WebP &bull; Maximum 10 MB per file &bull; Up to 4 photos
+
+            </div>
+
+
+
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+
+              <label class="btn-dashboard-primary" style="cursor: pointer; padding: 8px 18px; font-size: 0.8125rem;">
+
+                <span>Browse Files</span>
+
+                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple style="display: none;" />
+
+              </label>
+
+
+
+              <button type="button" class="lw-btn lw-btn--sm lw-btn--outline" id="btnUseCamera" style="padding: 8px 16px; font-size: 0.8125rem;">
+
+                <span>Use Device Camera</span>
+
+              </button>
+
+              <input type="file" id="cameraMobileFallback" accept="image/*" capture="environment" style="display: none;" />
+
+            </div>
+
+
+
+            <!-- Upload Progress Bar -->
+
+            <div id="photoProgressWrap" style="display: none; margin-top: 14px;">
+
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #C96F4F; margin-bottom: 4px;">
+
+                <span>Processing photograph...</span>
+
+                <span id="photoProgressPercent">0%</span>
+
+              </div>
+
+              <div style="width: 100%; height: 5px; background: #D9C9B2; border-radius: 3px; overflow: hidden;">
+
+                <div id="photoProgressBar" style="width: 0%; height: 100%; background: #C96F4F; transition: width 0.2s ease;"></div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="photo-previews-list" id="photoPreviewsList"></div>
+
+          <div class="form-inline-error" id="photoError"></div>
+
+        </div>
+
+
+
+        <!-- STEP 3: ENTER INCIDENT DESCRIPTION -->
+
+        <div class="workflow-step-card">
+
+          <div class="workflow-step-header">
+
+            <div class="workflow-step-num">3</div>
+
+            <div>
+
+              <h2 class="workflow-step-title">Enter Incident Description <span style="color: #B84B29;">*</span></h2>
+
+            </div>
+
+          </div>
+
+          <p class="workflow-step-desc">
+
+            Provide factual details regarding the observed slope movement, roadway obstruction, or weather conditions.
+
+          </p>
+
+
+
+          <div class="form-group">
+
+            <label class="form-label" for="incidentDescription">
+
+              Detailed Description <span class="req">*</span>
+
+            </label>
+
+            <textarea class="form-textarea" id="incidentDescription" rows="4" placeholder="Describe the slope failure: approximate size of debris, blocked lanes, observed water flow, or progressive ground fissures..." required></textarea>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+
+              <span class="form-hint" id="descCharCount">0 / 2000 characters (minimum 10 required)</span>
+
+              <span class="form-inline-error" id="descError">Description must be at least 10 characters long.</span>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="form-group">
+
+            <label class="form-label" for="locationDescription">
+
+              <img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 14px; vertical-align: -1px; margin-right: 4px;" />Road Name / Local Landmark <span class="req">*</span>
+
+            </label>
+
+            <input type="text" class="form-input" id="locationDescription" placeholder="e.g. NH-27 KM 42, near Jatinga Bridge or Sohra Escarpment road" required />
+
+            <div class="form-inline-error" id="locDescError">Location description is required (at least 3 characters).</div>
+
+          </div>
+
+
+
+          <div class="form-group">
+
+            <label class="form-label">Road Passability Condition</label>
+
+            <div class="passability-row">
+
+              <div class="passability-option selected" data-pass="partially blocked">
+
+                <span style="color: #C58A2B;">●</span> Partially Blocked (1 Lane Open)
+
+              </div>
+
+              <div class="passability-option" data-pass="completely blocked">
+
+                <span style="color: #B84B29;">●</span> Completely Blocked (Closed)
+
+              </div>
+
+              <div class="passability-option" data-pass="open">
+
+                <span style="color: #6B7F5B;">●</span> Passable with Caution
+
+              </div>
+
+            </div>
+
+            <input type="hidden" id="roadPassability" value="partially blocked" />
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STEP 4: SPECIFY INCIDENT LOCATION -->
+
+        <div class="workflow-step-card">
+
+          <div class="workflow-step-header">
+
+            <div class="workflow-step-num">4</div>
+
+            <div>
+
+              <h2 class="workflow-step-title"><img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 20px; vertical-align: -3px; margin-right: 6px;" />Specify Incident Location <span style="color: #B84B29;">*</span></h2>
+
+            </div>
+
+          </div>
+
+          <p class="workflow-step-desc">
+
+            Provide the incident location using either your device's GPS or by pinning the point on the interactive map.
+
+          </p>
+
+
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+
+            <!-- Option A: GPS -->
+
+            <button type="button" class="btn-dashboard-primary" id="btnUseGps">
+
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+
+              <span>Use My Current Location</span>
+
+            </button>
+
+            <span style="font-size: 0.8125rem; color: #5E6F5C; display: inline-flex; align-items: center;">
+
+              or click on the map below to select location
+
+            </span>
+
+          </div>
+
+
+
+          <!-- GPS Status & Notice -->
+
+          <div id="gpsStatusMessage" style="font-size: 0.8125rem; margin-bottom: 10px; color: #4A5D48;">
+
+            Coordinates not yet selected. Click 'Use My Current Location' or click anywhere on the map.
+
+          </div>
+
+
+
+          <!-- Option B: Leaflet Map -->
+
+          <div class="location-map-wrap">
+
+            <div id="incidentMapCanvas" class="location-map-canvas"></div>
+
+            <div class="location-bar">
+
+              <div>
+
+                <span><img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 13px; vertical-align: -1px; margin-right: 4px;" />Selected Coordinates: </span>
+
+                <strong id="displayCoordsText" style="color: #C96F4F; font-family: monospace;">Lat: --, Lng: --</strong>
+
+              </div>
+
+              <div>
+
+                <span>Accuracy: </span>
+
+                <strong id="displayAccuracyText" style="color: #2E3A2F; font-family: monospace;">--</strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Option to manually edit coordinates -->
+
+          <div style="margin-top: 14px; padding: 12px 14px; background: #F8F6EE; border: 1px solid #D9C9B2; border-radius: 4px;">
+
+            <span style="font-size: 0.775rem; font-weight: 700; color: #2E3A2F; display: block; margin-bottom: 8px;">
+
+              Manually Enter or Edit Coordinates (Optional)
+
+            </span>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+              <div>
+
+                <label class="form-label" for="manualLatitude" style="font-size: 0.75rem; margin-bottom: 4px;">Latitude (°N)</label>
+
+                <input type="number" step="0.000001" class="form-input" id="manualLatitude" placeholder="e.g. 25.6751" style="padding: 7px 10px; font-size: 0.8125rem;" />
+
+              </div>
+
+              <div>
+
+                <label class="form-label" for="manualLongitude" style="font-size: 0.75rem; margin-bottom: 4px;">Longitude (°E)</label>
+
+                <input type="number" step="0.000001" class="form-input" id="manualLongitude" placeholder="e.g. 94.1106" style="padding: 7px 10px; font-size: 0.8125rem;" />
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <input type="hidden" id="geoLatitude" />
+
+          <input type="hidden" id="geoLongitude" />
+
+          <input type="hidden" id="geoAccuracy" value="15" />
+
+          <div class="form-inline-error" id="locationError">Please specify a location using GPS or the map.</div>
+
+        </div>
+
+
+
+        <!-- STEP 5: REVIEW AND SUBMIT -->
+
+        <div class="workflow-step-card">
+
+          <div class="workflow-step-header">
+
+            <div class="workflow-step-num">5</div>
+
+            <div>
+
+              <h2 class="workflow-step-title">Review and Submit</h2>
+
+            </div>
+
+          </div>
+
+          <p class="workflow-step-desc">
+
+            Verify your observation summary before transmission to disaster response authorities.
+
+          </p>
+
+
+
+          <!-- Live Review Summary Card -->
+
+          <div class="review-summary-box">
+
+            <div class="review-summary-row">
+
+              <span class="review-summary-label">Category:</span>
+
+              <span class="review-summary-val" id="summaryCategory">Landslide</span>
+
+            </div>
+
+            <div class="review-summary-row">
+
+              <span class="review-summary-label"><img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 13px; vertical-align: -1px; margin-right: 4px;" />Road / Location:</span>
+
+              <span class="review-summary-val" id="summaryLocation">Not entered yet</span>
+
+            </div>
+
+            <div class="review-summary-row">
+
+              <span class="review-summary-label"><img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 13px; vertical-align: -1px; margin-right: 4px;" />Coordinates:</span>
+
+              <span class="review-summary-val" id="summaryCoords">Not pinned</span>
+
+            </div>
+
+            <div class="review-summary-row">
+
+              <span class="review-summary-label">Passability:</span>
+
+              <span class="review-summary-val" id="summaryPassability">Partially Blocked</span>
+
+            </div>
+
+            <div class="review-summary-row">
+
+              <span class="review-summary-label">Photos Attached:</span>
+
+              <span class="review-summary-val" id="summaryPhotos">0 photos</span>
+
+            </div>
+
+            <div class="review-summary-row">
+
+              <span class="review-summary-label">Description Preview:</span>
+
+              <span class="review-summary-val" id="summaryDesc" style="font-weight: 500; font-style: italic;">No description entered</span>
+
+            </div>
+
+          </div>
+
+
+
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+
+            <button type="submit" class="btn-dashboard-primary" id="btnSubmitForm" style="padding: 12px 28px; font-size: 0.9375rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+
+              <span id="btnSubmitLabel">Submit Incident Report</span>
+
+            </button>
+
+            <span style="font-size: 0.75rem; color: #5E6F5C;">
+
+              Anti-duplicate protection enabled &bull; Authenticated report submission
+
+            </span>
+
+          </div>
+
+        </div>
+
+
+
+      </form>
+
+
+
+      <!-- SUCCESS CONFIRMATION MODAL -->
+
+      <div class="submission-modal-overlay" id="submissionSuccessModal" style="display: none;">
+
+        <div class="submission-modal-card">
+
+          <div style="width: 56px; height: 56px; background: rgba(107, 127, 91, 0.15); border: 2px solid #6B7F5B; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6B7F5B" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+
+          </div>
+
+          <h2 style="font-size: 1.35rem; color: #2E3A2F; margin: 0 0 8px 0; font-weight: 800;">Incident Report Submitted</h2>
+
+          <p style="font-size: 0.875rem; color: #4A5D48; margin: 0 0 20px 0; line-height: 1.5;">
+
+            Your observation has been verified and registered by the SlopeGuard monitoring system.
+
+          </p>
+
+
+
+          <div style="background: #F8F6EE; border: 1px solid #D9C9B2; border-radius: 6px; padding: 14px; text-align: left; margin-bottom: 24px; font-size: 0.8125rem;">
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+
+              <span style="color: #5E6F5C;">Official Report Reference:</span>
+
+              <strong style="color: #C96F4F; font-family: monospace; font-size: 0.9375rem;" id="successReportRef">#--</strong>
+
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+
+              <span style="color: #5E6F5C;">Initial Status:</span>
+
+              <span class="citizen-alert-badge" style="background: #D9C9B2; color: #2E3A2F;">SUBMITTED</span>
+
+            </div>
+
+            <div style="display: flex; justify-content: space-between;">
+
+              <span style="color: #5E6F5C;">Submission Timestamp:</span>
+
+              <strong style="color: #2E3A2F;" id="successSubmittedTime">--</strong>
+
+            </div>
+
+          </div>
+
+
+
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+
+            <a href="my-reports.html" class="btn-dashboard-primary" style="text-decoration: none; padding: 10px 18px; font-size: 0.8125rem;">
+
+              Track in My Reports
+
+            </a>
+
+            <button type="button" class="lw-btn lw-btn--sm lw-btn--outline" id="btnSubmitAnother" style="padding: 10px 18px; font-size: 0.8125rem;">
+
+              Submit Another Report
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- CAMERA STREAM MODAL -->
+
+      <div class="submission-modal-overlay" id="cameraModal" style="display: none; z-index: 10000;">
+
+        <div class="submission-modal-card" style="max-width: 480px; width: 95%; padding: 20px;">
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+
+            <h3 style="margin: 0; font-size: 1.05rem; color: #2E3A2F; font-weight: 700;">Take Incident Photo</h3>
+
+            <button type="button" id="btnCloseCamera" style="background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: #5E6F5C;">&times;</button>
+
+          </div>
+
+
+
+          <div style="position: relative; width: 100%; height: 260px; background: #1C2B20; border-radius: 6px; overflow: hidden; margin-bottom: 14px; display: flex; align-items: center; justify-content: center;">
+
+            <video id="cameraVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+
+            <canvas id="cameraCanvas" style="display: none;"></canvas>
+
+            <div id="cameraLoadingMsg" style="position: absolute; color: #F8F6EE; font-size: 0.8125rem;">Opening camera...</div>
+
+          </div>
+
+
+
+          <div id="cameraErrorMsg" style="display: none; color: #B84B29; font-size: 0.75rem; margin-bottom: 10px; text-align: center;"></div>
+
+
+
+          <div style="display: flex; gap: 10px; justify-content: center;">
+
+            <button type="button" class="btn-dashboard-primary" id="btnCapturePhoto">Capture Photo</button>
+
+            <button type="button" class="lw-btn lw-btn--sm lw-btn--outline" id="btnCancelCamera">Cancel</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+    </main>
+
+  </div>
+
+
+
+  <!-- Scripts -->
+
+  <script src="js/leaflet.js"></script>
+
+  <script src="js/core/config.js"></script>
+
+  <script src="js/core/content.js"></script>
+
+  <script src="js/core/format.js"></script>
+
+  <script src="js/core/store.js"></script>
+
+  <script src="js/core/api.js"></script>
+
+  <script src="js/core/ui.js"></script>
+
+  <script src="js/core/guard.js"></script>
+
+  <script src="js/core/auth.js"></script>
+
+  <script src="js/services/reports-storage.js"></script>
+
+  <script src="js/services/incidents-service.js"></script>
+
+  <script src="js/components/bell.js"></script>
+
+
+
+  <script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // 1. User Header
+
+      const user = window.LW.authService?.getCurrentUser() || (function() {
+
+        try {
+
+          const raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+
+          return raw ? JSON.parse(raw) : null;
+
+        } catch (e) { return null; }
+
+      })();
+
+
+
+      if (user) {
+
+        const name = user.fullName || user.name || "Citizen Observer";
+
+        document.getElementById("sidebarName").textContent = name;
+
+        document.getElementById("sidebarRole").innerHTML = `CITIZEN &bull; Registered Monitor`;
+
+        document.getElementById("sidebarAvatar").textContent = name.charAt(0).toUpperCase();
+
+      }
+
+
+
+      const bellSlot = document.getElementById("bellSlot");
+
+      if (bellSlot && window.LW.bell) window.LW.bell.mount(bellSlot);
+
+
+
+      document.getElementById("sidebarLogout")?.addEventListener("click", () => {
+
+        window.LW.authService?.logout();
+
+        window.location.replace("login.html");
+
+      });
+
+
+
+      document.getElementById("mobileToggle")?.addEventListener("click", () => {
+
+        document.getElementById("dashboardSidebar")?.classList.toggle("mobile-open");
+
+      });
+
+
+
+      // 2. Step 1: Category Selection
+
+      const categoryBtns = document.querySelectorAll(".category-card-btn");
+
+      const hiddenCategory = document.getElementById("selectedCategory");
+
+      const hiddenBackendCategory = document.getElementById("selectedBackendCategory");
+
+      const summaryCat = document.getElementById("summaryCategory");
+
+
+
+      categoryBtns.forEach(btn => {
+
+        btn.addEventListener("click", () => {
+
+          categoryBtns.forEach(b => {
+
+            b.classList.remove("selected");
+
+            b.setAttribute("aria-checked", "false");
+
+          });
+
+          btn.classList.add("selected");
+
+          btn.setAttribute("aria-checked", "true");
+
+
+
+          const catName = btn.dataset.category;
+
+          const backendName = btn.dataset.backend;
+
+          hiddenCategory.value = catName;
+
+          hiddenBackendCategory.value = backendName;
+
+          if (summaryCat) summaryCat.textContent = catName;
+
+          document.getElementById("categoryError").style.display = "none";
+
+        });
+
+      });
+
+
+
+      // 3. Step 3: Passability & Description Live Updates
+
+      const passabilityOptions = document.querySelectorAll(".passability-option");
+
+      const hiddenPassability = document.getElementById("roadPassability");
+
+      const summaryPass = document.getElementById("summaryPassability");
+
+
+
+      passabilityOptions.forEach(opt => {
+
+        opt.addEventListener("click", () => {
+
+          passabilityOptions.forEach(o => o.classList.remove("selected"));
+
+          opt.classList.add("selected");
+
+          hiddenPassability.value = opt.dataset.pass;
+
+          if (summaryPass) summaryPass.textContent = opt.textContent.trim().replace("●", "").trim();
+
+        });
+
+      });
+
+
+
+      const descInput = document.getElementById("incidentDescription");
+
+      const descCount = document.getElementById("descCharCount");
+
+      const summaryDesc = document.getElementById("summaryDesc");
+
+
+
+      descInput.addEventListener("input", (e) => {
+
+        const val = e.target.value;
+
+        const len = val.length;
+
+        descCount.textContent = `${len} / 2000 characters (minimum 10 required)`;
+
+        if (summaryDesc) {
+
+          summaryDesc.textContent = val.trim() ? (val.length > 80 ? val.substring(0, 80) + '...' : val) : "No description entered";
+
+        }
+
+        if (len >= 10) {
+
+          descInput.classList.remove("error");
+
+          document.getElementById("descError").style.display = "none";
+
+        }
+
+      });
+
+
+
+      const locDescInput = document.getElementById("locationDescription");
+
+      const summaryLoc = document.getElementById("summaryLocation");
+
+      locDescInput.addEventListener("input", (e) => {
+
+        const val = e.target.value.trim();
+
+        if (summaryLoc) summaryLoc.textContent = val || "Not entered yet";
+
+        if (val.length >= 3) {
+
+          locDescInput.classList.remove("error");
+
+          document.getElementById("locDescError").style.display = "none";
+
+        }
+
+      });
+
+
+
+      // 4. Step 4: Location Selection (Option A: GPS, Option B: Leaflet Map)
+
+      const mapEl = document.getElementById("incidentMapCanvas");
+
+      const displayCoords = document.getElementById("displayCoordsText");
+
+      const displayAccuracy = document.getElementById("displayAccuracyText");
+
+      const summaryCoords = document.getElementById("summaryCoords");
+
+      const latInput = document.getElementById("geoLatitude");
+
+      const lngInput = document.getElementById("geoLongitude");
+
+      const accInput = document.getElementById("geoAccuracy");
+
+      const gpsStatus = document.getElementById("gpsStatusMessage");
+
+
+
+      const defaultCenter = [25.5788, 91.8933]; // Shillong / Meghalaya default
+
+      const map = L.map(mapEl, {
+
+        zoomControl: true,
+
+        attributionControl: false
+
+      }).setView(defaultCenter, 9);
+
+
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+
+        maxZoom: 19
+
+      }).addTo(map);
+
+
+
+      let pinMarker = null;
+
+
+
+      function updatePoint(lat, lng, accuracy = 15, sourceLabel = "Map Selection") {
+
+        latInput.value = lat.toFixed(6);
+
+        lngInput.value = lng.toFixed(6);
+
+        accInput.value = accuracy;
+
+        const manualLatEl = document.getElementById("manualLatitude");
+
+        const manualLngEl = document.getElementById("manualLongitude");
+
+        if (manualLatEl && document.activeElement !== manualLatEl) manualLatEl.value = lat.toFixed(6);
+
+        if (manualLngEl && document.activeElement !== manualLngEl) manualLngEl.value = lng.toFixed(6);
+
+
+
+        const coordsDisplay = `Lat: ${lat.toFixed(5)}°, Lng: ${lng.toFixed(5)}°`;
+
+        displayCoords.textContent = coordsDisplay;
+
+        displayAccuracy.textContent = `±${accuracy} m`;
+
+        if (summaryCoords) summaryCoords.textContent = coordsDisplay;
+
+
+
+        gpsStatus.innerHTML = `<img src="assets/icons/location-pin.png" alt="Location pin" class="location-pin-icon" style="height: 15px; vertical-align: -2px; margin-right: 4px;" /><span style="color: #6B7F5B; font-weight: 700;">✓ Location Pinned:</span> ${coordsDisplay} (${sourceLabel})`;
+
+        document.getElementById("locationError").style.display = "none";
+
+
+
+        const locationPinIcon = L.icon({
+
+          iconUrl: "assets/icons/location-pin.png",
+
+          iconSize: [32, 46],
+
+          iconAnchor: [16, 46],
+
+          popupAnchor: [0, -46],
+
+          className: "leaflet-location-pin"
+
+        });
+
+
+
+        if (pinMarker) {
+
+          pinMarker.setLatLng([lat, lng]);
+
+        } else {
+
+          pinMarker = L.marker([lat, lng], { icon: locationPinIcon, draggable: true }).addTo(map);
+
+          pinMarker.on("dragend", (e) => {
+
+            const p = e.target.getLatLng();
+
+            updatePoint(p.lat, p.lng, 20, "Adjusted Marker");
+
+          });
+
+        }
+
+        map.setView([lat, lng], 13);
+
+      }
+
+
+
+      // Map Click (Option B)
+
+      map.on("click", (e) => {
+
+        updatePoint(e.latlng.lat, e.latlng.lng, 20, "Map Click");
+
+      });
+
+
+
+      // Manual Coordinate Inputs Event Handlers
+
+      const manualLatEl = document.getElementById("manualLatitude");
+
+      const manualLngEl = document.getElementById("manualLongitude");
+
+      function handleManualCoordChange() {
+
+        const mLat = parseFloat(manualLatEl?.value);
+
+        const mLng = parseFloat(manualLngEl?.value);
+
+        if (!isNaN(mLat) && !isNaN(mLng) && mLat >= -90 && mLat <= 90 && mLng >= -180 && mLng <= 180) {
+
+          updatePoint(mLat, mLng, 15, "Manual Coordinate Entry");
+
+        }
+
+      }
+
+      manualLatEl?.addEventListener("input", handleManualCoordChange);
+
+      manualLngEl?.addEventListener("input", handleManualCoordChange);
+
+
+
+      // GPS Button Click (Option A)
+
+      const btnGps = document.getElementById("btnUseGps");
+
+      btnGps.addEventListener("click", () => {
+
+        if (!navigator.geolocation) {
+
+          gpsStatus.textContent = "Geolocation is not supported by your browser. Please click directly on the map to set location.";
+
+          gpsStatus.style.color = "#B84B29";
+
+          return;
+
+        }
+
+
+
+        gpsStatus.textContent = "Requesting browser location permission...";
+
+        btnGps.disabled = true;
+
+
+
+        navigator.geolocation.getCurrentPosition(
+
+          (pos) => {
+
+            btnGps.disabled = false;
+
+            const lat = pos.coords.latitude;
+
+            const lng = pos.coords.longitude;
+
+            const acc = Math.round(pos.coords.accuracy || 15);
+
+            updatePoint(lat, lng, acc, "GPS Device Telemetry");
+
+            window.LW.ui?.toast("GPS coordinates captured successfully.", "success");
+
+          },
+
+          (err) => {
+
+            btnGps.disabled = false;
+
+            let errMsg = "Location permission denied. Please click on the map to place the incident marker.";
+
+            if (err.code === 2) errMsg = "GPS position unavailable. Please click on the map to select the location.";
+
+            else if (err.code === 3) errMsg = "GPS request timed out. Please click on the map to select the location.";
+
+            gpsStatus.textContent = errMsg;
+
+            gpsStatus.style.color = "#B84B29";
+
+            window.LW.ui?.toast(errMsg, "warning");
+
+          },
+
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+
+        );
+
+      });
+
+
+
+      // 5. Step 2: Photo Uploads
+
+      let attachedPhotos = [];
+
+      const previewsContainer = document.getElementById("photoPreviewsList");
+
+      const summaryPhotos = document.getElementById("summaryPhotos");
+
+      const progressWrap = document.getElementById("photoProgressWrap");
+
+      const progressBar = document.getElementById("photoProgressBar");
+
+      const progressPct = document.getElementById("photoProgressPercent");
+
+
+
+      function renderPreviews() {
+
+        previewsContainer.innerHTML = attachedPhotos.map((p, idx) => `
+
+          <div class="photo-thumb-card">
+
+            <img src="${p.url || p.previewUrl}" alt="Photo Evidence ${idx + 1}" />
+
+            <button type="button" class="photo-thumb-remove" data-idx="${idx}" title="Remove photo">&times;</button>
+
+          </div>
+
+        `).join("");
+
+
+
+        if (summaryPhotos) {
+
+          summaryPhotos.textContent = attachedPhotos.length === 1 ? "1 photo attached" : `${attachedPhotos.length} photos attached`;
+
+        }
+
+
+
+        previewsContainer.querySelectorAll(".photo-thumb-remove").forEach(btn => {
+
+          btn.addEventListener("click", (e) => {
+
+            const idx = parseInt(e.currentTarget.dataset.idx, 10);
+
+            attachedPhotos.splice(idx, 1);
+
+            renderPreviews();
+
+          });
+
+        });
+
+      }
+
+
+
+      async function processFiles(files) {
+
+        if (!files || files.length === 0) return;
+
+        if (attachedPhotos.length + files.length > 4) {
+
+          window.LW.ui?.toast("A maximum of 4 photographs can be attached per incident report.", "warning");
+
+          return;
+
+        }
+
+
+
+        progressWrap.style.display = "block";
+
+        progressBar.style.width = "20%";
+
+        progressPct.textContent = "20%";
+
+
+
+        for (let file of files) {
+
+          try {
+
+            progressBar.style.width = "60%";
+
+            progressPct.textContent = "60%";
+
+            const uploadedRef = await window.LW.incidentsService.processPhotoUpload(file, (p) => {
+
+              progressBar.style.width = `${p}%`;
+
+              progressPct.textContent = `${p}%`;
+
+            });
+
+            attachedPhotos.push(uploadedRef);
+
+            renderPreviews();
+
+            window.LW.ui?.toast(`Photo attached: ${file.name}`, "success");
+
+          } catch (err) {
+
+            console.error("Photo validation error:", err);
+
+            window.LW.ui?.toast(`Photo rejected: ${err.message}`, "error");
+
+          }
+
+        }
+
+
+
+        setTimeout(() => {
+
+          progressWrap.style.display = "none";
+
+          progressBar.style.width = "0%";
+
+        }, 400);
+
+      }
+
+
+
+      document.getElementById("fileInput").addEventListener("change", (e) => {
+
+        processFiles(e.target.files);
+
+        e.target.value = "";
+
+      });
+
+
+
+      // Drag and drop
+
+      const dropBox = document.getElementById("photoDropBox");
+
+      dropBox.addEventListener("dragover", (e) => { e.preventDefault(); dropBox.classList.add("dragover"); });
+
+      dropBox.addEventListener("dragleave", () => dropBox.classList.remove("dragover"));
+
+      dropBox.addEventListener("drop", (e) => {
+
+        e.preventDefault();
+
+        dropBox.classList.remove("dragover");
+
+        if (e.dataTransfer.files) processFiles(e.dataTransfer.files);
+
+      });
+
+
+
+      // Camera feature
+
+      let camStream = null;
+
+      const camModal = document.getElementById("cameraModal");
+
+      const camVideo = document.getElementById("cameraVideo");
+
+      const camCanvas = document.getElementById("cameraCanvas");
+
+      const camLoading = document.getElementById("cameraLoadingMsg");
+
+      const camError = document.getElementById("cameraErrorMsg");
+
+
+
+      function stopCam() {
+
+        if (camStream) {
+
+          camStream.getTracks().forEach(t => t.stop());
+
+          camStream = null;
+
+        }
+
+        if (camVideo) camVideo.srcObject = null;
+
+        camModal.style.display = "none";
+
+      }
+
+
+
+      document.getElementById("btnUseCamera").addEventListener("click", async () => {
+
+        if (attachedPhotos.length >= 4) {
+
+          window.LW.ui?.toast("Maximum of 4 photos already attached.", "warning");
+
+          return;
+
+        }
+
+
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+          camModal.style.display = "flex";
+
+          camLoading.style.display = "block";
+
+          camError.style.display = "none";
+
+          try {
+
+            camStream = await navigator.mediaDevices.getUserMedia({
+
+              video: { facingMode: "environment", width: { ideal: 1280 } },
+
+              audio: false
+
+            });
+
+            camVideo.srcObject = camStream;
+
+            await camVideo.play();
+
+            camLoading.style.display = "none";
+
+          } catch (err) {
+
+            camLoading.style.display = "none";
+
+            camError.textContent = "Camera access denied or unavailable. You can browse files instead.";
+
+            camError.style.display = "block";
+
+            document.getElementById("cameraMobileFallback").click();
+
+            stopCam();
+
+          }
+
+        } else {
+
+          document.getElementById("cameraMobileFallback").click();
+
+        }
+
+      });
+
+
+
+      document.getElementById("cameraMobileFallback").addEventListener("change", (e) => {
+
+        processFiles(e.target.files);
+
+        e.target.value = "";
+
+      });
+
+
+
+      document.getElementById("btnCapturePhoto").addEventListener("click", () => {
+
+        if (!camVideo || !camCanvas) return;
+
+        const w = camVideo.videoWidth || 640;
+
+        const h = camVideo.videoHeight || 480;
+
+        camCanvas.width = w;
+
+        camCanvas.height = h;
+
+        const ctx = camCanvas.getContext("2d");
+
+        ctx.drawImage(camVideo, 0, 0, w, h);
+
+
+
+        camCanvas.toBlob(async (blob) => {
+
+          if (!blob) return;
+
+          const file = new File([blob], `camera_${Date.now()}.jpg`, { type: "image/jpeg" });
+
+          try {
+
+            const uploadedRef = await window.LW.incidentsService.processPhotoUpload(file);
+
+            attachedPhotos.push(uploadedRef);
+
+            renderPreviews();
+
+            window.LW.ui?.toast("Photo captured and attached.", "success");
+
+            stopCam();
+
+          } catch (err) {
+
+            window.LW.ui?.toast(err.message, "error");
+
+          }
+
+        }, "image/jpeg", 0.9);
+
+      });
+
+
+
+      document.getElementById("btnCloseCamera").addEventListener("click", stopCam);
+
+      document.getElementById("btnCancelCamera").addEventListener("click", stopCam);
+
+
+
+      // 6. Form Submission (Step 5) with Anti-Duplicate Protection
+
+      const form = document.getElementById("incidentForm");
+
+      const btnSubmit = document.getElementById("btnSubmitForm");
+
+      const btnSubmitLabel = document.getElementById("btnSubmitLabel");
+
+      const errorBanner = document.getElementById("formErrorBanner");
+
+
+
+      form.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        errorBanner.style.display = "none";
+
+
+
+        // Validate Category
+
+        const category = hiddenCategory.value;
+
+        const backendCategory = hiddenBackendCategory.value;
+
+        if (!category || !backendCategory) {
+
+          document.getElementById("categoryError").style.display = "block";
+
+          window.LW.ui?.toast("Please select an incident category.", "error");
+
+          return;
+
+        }
+
+
+
+        // Validate Description
+
+        const desc = descInput.value.trim();
+
+        if (desc.length < 10) {
+
+          descInput.classList.add("error");
+
+          document.getElementById("descError").style.display = "block";
+
+          descInput.focus();
+
+          window.LW.ui?.toast("Description must be at least 10 characters.", "error");
+
+          return;
+
+        }
+
+
+
+        // Validate Location Description
+
+        const locDesc = locDescInput.value.trim();
+
+        if (locDesc.length < 3) {
+
+          locDescInput.classList.add("error");
+
+          document.getElementById("locDescError").style.display = "block";
+
+          locDescInput.focus();
+
+          window.LW.ui?.toast("Please enter a road name or location description.", "error");
+
+          return;
+
+        }
+
+
+
+        // Validate Coordinates
+
+        const lat = parseFloat(latInput.value);
+
+        const lng = parseFloat(lngInput.value);
+
+        if (isNaN(lat) || isNaN(lng)) {
+
+          document.getElementById("locationError").style.display = "block";
+
+          window.LW.ui?.toast("Please select an incident location using GPS or the map.", "error");
+
+          return;
+
+        }
+
+
+
+        // Anti-Duplicate Protection
+
+        btnSubmit.disabled = true;
+
+        btnSubmitLabel.textContent = "Submitting Report to Authority...";
+
+
+
+        try {
+
+          const payload = {
+
+            incidentType: category,
+
+            incidentCategory: backendCategory,
+
+            description: desc,
+
+            roadName: locDesc,
+
+            locationDescription: locDesc,
+
+            roadPassability: hiddenPassability.value,
+
+            latitude: lat,
+
+            longitude: lng,
+
+            observedAt: new Date().toISOString(),
+
+            location: {
+
+              latitude: lat,
+
+              longitude: lng,
+
+              roadName: locDesc,
+
+              placeName: locDesc,
+
+              accuracy: Number(accInput.value || 15)
+
+            },
+
+            photos: attachedPhotos
+
+          };
+
+
+
+          const result = await window.LW.incidentsService.submitIncident(payload);
+
+
+
+          // On Success: show real returned reference
+
+          const savedReport = result.data || {};
+
+          const refNumber = result.backendId ? `#${result.backendId}` : (savedReport.id ? `#${savedReport.id}` : "#INC");
+
+
+
+          document.getElementById("successReportRef").textContent = refNumber;
+
+          document.getElementById("successSubmittedTime").textContent = new Date().toLocaleString();
+
+          document.getElementById("submissionSuccessModal").style.display = "flex";
+
+
+
+          // Reset form on success
+
+          form.reset();
+
+          attachedPhotos = [];
+
+          renderPreviews();
+
+          pinMarker?.remove();
+
+          pinMarker = null;
+
+          displayCoords.textContent = "Lat: --, Lng: --";
+
+          displayAccuracy.textContent = "--";
+
+          gpsStatus.textContent = "Coordinates not yet selected.";
+
+          if (summaryDesc) summaryDesc.textContent = "No description entered";
+
+          if (summaryLoc) summaryLoc.textContent = "Not entered yet";
+
+          if (summaryCoords) summaryCoords.textContent = "Not pinned";
+
+          // Success confirmation modal displayed
+
+        } catch (err) {
+
+          console.error("Submission failed:", err);
+
+          errorBanner.textContent = `Submission failed: ${err.message || 'Please check your connection and retry.'}`;
+
+          errorBanner.style.display = "block";
+
+          window.LW.ui?.toast("Failed to submit report. Your entered data has been preserved.", "error");
+
+        } finally {
+
+          btnSubmit.disabled = false;
+
+          btnSubmitLabel.textContent = "Submit Incident Report";
+
+        }
+
+      });
+
+
+
+      document.getElementById("btnSubmitAnother").addEventListener("click", () => {
+
+        document.getElementById("submissionSuccessModal").style.display = "none";
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+      });
+
+    });
+
+  </script>
+
+</body>
+
+</html>
+

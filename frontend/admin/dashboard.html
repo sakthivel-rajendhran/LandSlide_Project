@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlopeGuard — Admin / DMO Incident Management Console</title>
+  <meta name="description" content="Administrative operations console for incident verification, official hazard alerts, and rescue coordination.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><polygon points='12,32 23,6 34,32' fill='%23C96F4F'/><polygon points='4,32 16,14 24,32' fill='%232E3A2F'/></svg>">
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/pages/admin-dashboard.css">
+
+  <!-- Immediate Authentication & Strict Role Guard -->
+  <script>
+    (function() {
+      function checkAuth() {
+        try {
+          var raw = sessionStorage.getItem("sg_user") || localStorage.getItem("sg_user");
+          var user = raw ? JSON.parse(raw) : null;
+          if (!user) {
+            window.location.replace("../login.html?next=" + encodeURIComponent("admin/dashboard.html"));
+            return;
+          }
+          var role = (user.role || "").toUpperCase();
+          if (role === "OFFICER" || role === "RESCUE_FORCE") {
+            window.location.replace("../rescue-dashboard.html");
+            return;
+          }
+          if (role !== "ADMIN") {
+            window.location.replace("../dashboard.html");
+            return;
+          }
+        } catch (e) {
+          window.location.replace("../login.html");
+        }
+      }
+      checkAuth();
+      window.addEventListener("pageshow", function(e) {
+        if (e.persisted) checkAuth();
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- =========================================================================
+       Topbar: Admin Header
+       ========================================================================= -->
+  <header class="admin-topbar">
+    <div class="admin-brand-group">
+      <a href="dashboard.html" class="admin-brand-logo" aria-label="SlopeGuard Admin Dashboard">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="12,34 23,8 34,34" fill="#C96F4F"/>
+          <polygon points="4,34 16,16 24,34" fill="#6B7F5B"/>
+        </svg>
+        <span class="admin-brand-title">
+          SlopeGuard
+          <span class="admin-role-tag">Admin / DMO</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="admin-topbar-actions">
+      <!-- Admin Profile Identity -->
+      <div class="admin-user-profile">
+        <div class="admin-user-avatar" id="adminUserAvatar">A</div>
+        <div class="admin-user-info">
+          <span class="admin-user-name" id="adminUserName">System Administrator</span>
+          <span class="admin-user-role">DMO Command Operations</span>
+        </div>
+      </div>
+
+      <!-- Single Sign Out Button -->
+      <button type="button" class="btn-signout" id="btnSignOut" title="Sign out of administration console">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       Main Content Container
+       ========================================================================= -->
+  <main class="admin-main-wrapper">
+
+    <!-- Page Heading -->
+    <div class="admin-heading-block">
+      <div>
+        <h1 class="admin-page-title">Admin / DMO Incident Management Console</h1>
+        <p class="admin-page-subtitle">Official incident verification, hazard alert dissemination, and rescue dispatch operations.</p>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <nav class="admin-nav-tabs" id="adminNavTabs" aria-label="Admin Navigation Tabs">
+      <button type="button" class="admin-tab-btn active" data-tab="overview">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Overview &amp; Summary
+      </button>
+
+      <button type="button" class="admin-tab-btn" data-tab="incidents">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        Incident Review Queue
+        <span class="tab-badge" id="badgePendingTab">0</span>
+      </button>
+
+      <button type="button" class="admin-tab-btn" data-tab="alerts">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+        Official Alerts
+        <span class="tab-badge" id="badgeAlertsTab">0</span>
+      </button>
+
+      <button type="button" class="admin-tab-btn" data-tab="rescue">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12,34 23,8 34,34"/><polygon points="4,34 16,16 24,34"/></svg>
+        Rescue Assignments
+        <span class="tab-badge" id="badgeRescueTab">0</span>
+      </button>
+
+      <button type="button" class="admin-tab-btn" data-tab="teams">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Rescue Teams
+        <span class="tab-badge" id="badgeTeamsTab">0</span>
+      </button>
+    </nav>
+
+    <!-- 5 Compact Summary Cards -->
+    <section class="admin-summary-grid" aria-label="Operational Summary Statistics">
+      <!-- Card 1: Total Reports -->
+      <div class="admin-stat-card">
+        <div class="admin-stat-header">
+          <span class="admin-stat-label">Total Reports</span>
+          <div class="admin-stat-icon icon-reports">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          </div>
+        </div>
+        <div class="admin-stat-value" id="statTotalReports">0</div>
+        <div class="admin-stat-footer">All citizen reports recorded</div>
+      </div>
+
+      <!-- Card 2: Pending Reviews -->
+      <div class="admin-stat-card">
+        <div class="admin-stat-header">
+          <span class="admin-stat-label">Pending Reviews</span>
+          <div class="admin-stat-icon icon-pending">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+        </div>
+        <div class="admin-stat-value" id="statPendingReviews" style="color: #D97706;">0</div>
+        <div class="admin-stat-footer">Awaiting DMO adjudication</div>
+      </div>
+
+      <!-- Card 3: Verified Reports -->
+      <div class="admin-stat-card">
+        <div class="admin-stat-header">
+          <span class="admin-stat-label">Verified Reports</span>
+          <div class="admin-stat-icon icon-verified">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+        </div>
+        <div class="admin-stat-value" id="statVerifiedReports" style="color: #059669;">0</div>
+        <div class="admin-stat-footer">Confirmed hazard incidents</div>
+      </div>
+
+      <!-- Card 4: Active Official Alerts -->
+      <div class="admin-stat-card">
+        <div class="admin-stat-header">
+          <span class="admin-stat-label">Active Alerts</span>
+          <div class="admin-stat-icon icon-alerts">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </div>
+        </div>
+        <div class="admin-stat-value" id="statActiveAlerts" style="color: #DC2626;">0</div>
+        <div class="admin-stat-footer">Broadcasted public advisories</div>
+      </div>
+
+      <!-- Card 5: Active Rescue Assignments -->
+      <div class="admin-stat-card">
+        <div class="admin-stat-header">
+          <span class="admin-stat-label">Active Rescue</span>
+          <div class="admin-stat-icon icon-rescue">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          </div>
+        </div>
+        <div class="admin-stat-value" id="statActiveAssignments" style="color: #7C3AED;">0</div>
+        <div class="admin-stat-footer">Dispatched field teams</div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 1: Overview & Summary
+         ========================================================================= -->
+    <section id="secOverview">
+      <!-- 1. Reports Awaiting Verification -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              Reports Awaiting Verification
+            </h2>
+          </div>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Report ID</th>
+                <th scope="col">Category</th>
+                <th scope="col">Location</th>
+                <th scope="col">GPS Coordinates</th>
+                <th scope="col">Reported Date</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Status</th>
+                <th scope="col" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPendingQueue">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Recent Incident Reports -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              Recent Incident Reports
+            </h2>
+          </div>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Report ID</th>
+                <th scope="col">Category</th>
+                <th scope="col">Location</th>
+                <th scope="col">GPS Coordinates</th>
+                <th scope="col">Reported Date</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Status</th>
+                <th scope="col" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRecentReports">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. Active Official Alerts Overview -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+              Active Official Alerts
+            </h2>
+          </div>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Alert ID</th>
+                <th scope="col">Title</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Affected Location</th>
+                <th scope="col">Status</th>
+                <th scope="col">Published Date</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyAlertsOverview">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Current Rescue Assignments Overview -->
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,34 23,8 34,34"/><polygon points="4,34 16,16 24,34"/></svg>
+              Current Rescue Assignments
+            </h2>
+          </div>
+        </div>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Incident ID</th>
+                <th scope="col">Category</th>
+                <th scope="col">Assigned Unit</th>
+                <th scope="col">Priority</th>
+                <th scope="col">Location</th>
+                <th scope="col">Stage</th>
+                <th scope="col">Latest Response Note</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRescueOverview">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 2: Incident Review Queue
+         ========================================================================= -->
+    <section id="secIncidents" style="display: none;">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">All Citizen Incident Reports</h2>
+            <span class="tab-badge" id="badgeIncidentsCount">0 Reports</span>
+          </div>
+
+          <div class="admin-panel-actions">
+            <input type="text" id="inputIncidentSearch" class="admin-search-input" placeholder="Search by ID, type, location...">
+            <select id="selectIncidentFilter" class="admin-filter-select">
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending Verification</option>
+              <option value="verified">Verified</option>
+              <option value="assigned">Assigned</option>
+              <option value="resolved">Resolved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Report ID</th>
+                <th scope="col">Category</th>
+                <th scope="col">Location</th>
+                <th scope="col">GPS Coordinates</th>
+                <th scope="col">Reported Date</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Status</th>
+                <th scope="col" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyIncidentReports">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+
+          <div class="admin-empty-state" id="emptyIncidentsState" style="display: none;">
+            <h3 class="admin-empty-title">No reports found</h3>
+            <p style="font-size: 0.8125rem; margin: 0;">No incident reports match your search or filter selection.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 3: Official Alerts Management
+         ========================================================================= -->
+    <section id="secAlerts" style="display: none;">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">Official Early-Warning Hazard Alerts</h2>
+            <span class="tab-badge" id="badgeAlertsCount">0 Alerts</span>
+          </div>
+
+          <div class="admin-panel-actions">
+            <input type="text" id="inputAlertSearch" class="admin-search-input" placeholder="Search alerts...">
+            <select id="selectAlertFilter" class="admin-filter-select">
+              <option value="all">All Alerts</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft / Under Review</option>
+              <option value="resolved">Resolved / Withdrawn</option>
+            </select>
+            <button type="button" class="btn-primary-admin" id="btnCreateAlert">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Create New Alert
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Alert ID</th>
+                <th scope="col">Title</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Affected Location</th>
+                <th scope="col">Status</th>
+                <th scope="col">Published Date</th>
+                <th scope="col" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyOfficialAlerts">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+
+          <div class="admin-empty-state" id="emptyAlertsState" style="display: none;">
+            <h3 class="admin-empty-title">No alerts found</h3>
+            <p style="font-size: 0.8125rem; margin: 0;">No official hazard alerts recorded in this category.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 4: Rescue Assignments Management
+         ========================================================================= -->
+    <section id="secRescue" style="display: none;">
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">Rescue Force Field Operations Coordination</h2>
+            <span class="tab-badge" id="badgeRescueCount">0 Missions</span>
+          </div>
+
+          <div class="admin-panel-actions">
+            <input type="text" id="inputRescueSearch" class="admin-search-input" placeholder="Search mission or team...">
+            <select id="selectRescueFilter" class="admin-filter-select">
+              <option value="all">All Assignments</option>
+              <option value="new">New Assignments</option>
+              <option value="accepted">Accepted</option>
+              <option value="in_progress">In Progress (En Route / On Scene)</option>
+              <option value="completed">Completed / Awaiting Closure</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Incident ID</th>
+                <th scope="col">Category</th>
+                <th scope="col">Assigned Unit</th>
+                <th scope="col">Priority</th>
+                <th scope="col">Location</th>
+                <th scope="col">Stage</th>
+                <th scope="col">Latest Response Note</th>
+                <th scope="col" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRescueAssignments">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+
+          <div class="admin-empty-state" id="emptyRescueState" style="display: none;">
+            <h3 class="admin-empty-title">No rescue assignments found</h3>
+            <p style="font-size: 0.8125rem; margin: 0;">No missions match your selected filter.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 5: Rescue Teams Management & Approvals
+         ========================================================================= -->
+    <section id="secTeams" style="display: none;">
+      <!-- Teams Operational Stat Badges -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+        <div class="admin-stat-card" style="padding: 12px 16px;">
+          <div class="admin-stat-label">Total Teams</div>
+          <div class="admin-stat-value" id="statTotalTeams" style="font-size: 1.5rem; margin-top: 4px;">0</div>
+        </div>
+        <div class="admin-stat-card" style="padding: 12px 16px;">
+          <div class="admin-stat-label">Pending Approval</div>
+          <div class="admin-stat-value" id="statPendingTeams" style="font-size: 1.5rem; margin-top: 4px; color: #D97706;">0</div>
+        </div>
+        <div class="admin-stat-card" style="padding: 12px 16px;">
+          <div class="admin-stat-label">Approved Units</div>
+          <div class="admin-stat-value" id="statApprovedTeams" style="font-size: 1.5rem; margin-top: 4px; color: #059669;">0</div>
+        </div>
+        <div class="admin-stat-card" style="padding: 12px 16px;">
+          <div class="admin-stat-label">Active & Available</div>
+          <div class="admin-stat-value" id="statActiveTeams" style="font-size: 1.5rem; margin-top: 4px; color: #3730A3;">0</div>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title-group">
+            <h2 class="admin-panel-title">Rescue Teams &amp; Regional SAR Units</h2>
+            <span class="tab-badge" id="badgeTeamsCount">0 Teams</span>
+          </div>
+
+          <div class="admin-panel-actions">
+            <input type="text" id="inputTeamSearch" class="admin-search-input" placeholder="Search team, org, base location...">
+            <select id="selectTeamFilter" class="admin-filter-select">
+              <option value="all">All Statuses</option>
+              <option value="PENDING">Pending Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="ACTIVE">Active Only</option>
+              <option value="INACTIVE">Inactive Only</option>
+            </select>
+            <button type="button" class="btn-compact" id="btnRefreshTeams" title="Refresh teams">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Team &amp; Organization</th>
+                <th scope="col">Base Location</th>
+                <th scope="col">Base Coordinates</th>
+                <th scope="col">Capabilities</th>
+                <th scope="col">Verification</th>
+                <th scope="col">Availability</th>
+                <th scope="col" style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRescueTeams">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+
+          <div class="admin-empty-state" id="emptyTeamsState" style="display: none;">
+            <h3 class="admin-empty-title">No rescue teams found</h3>
+            <p style="font-size: 0.8125rem; margin: 0;">No registered teams match the current filter criteria.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       Modals
+       ========================================================================= -->
+
+  <!-- 1. Incident Review & Details Modal -->
+  <div class="admin-modal-backdrop" id="incidentModal">
+    <div class="admin-modal-dialog">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="incidentModalTitle">Incident Review</h3>
+        <button type="button" class="admin-modal-close" data-close-modal="incidentModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body" id="incidentModalBody">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="admin-modal-footer" id="incidentModalFooter">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Create / Edit Official Alert Modal -->
+  <div class="admin-modal-backdrop" id="alertModal">
+    <div class="admin-modal-dialog" style="max-width: 600px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="alertFormTitle">Create Official Hazard Alert</h3>
+        <button type="button" class="admin-modal-close" data-close-modal="alertModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <div class="admin-form-group">
+          <label class="admin-label" for="inputAlertTitle">Alert Title *</label>
+          <input type="text" id="inputAlertTitle" class="admin-input" placeholder="e.g., Severe Landslide Warning: NH-29 Kohima Corridor" required>
+        </div>
+
+        <div class="modal-grid-2">
+          <div class="admin-form-group">
+            <label class="admin-label" for="inputAlertArea">Affected Location / Sector *</label>
+            <input type="text" id="inputAlertArea" class="admin-input" placeholder="e.g., East Khasi Hills, Mawphlang Pass" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="selectAlertSeverity">Severity Level *</label>
+            <select id="selectAlertSeverity" class="admin-select">
+              <option value="CRITICAL">Critical — Immediate Red Alert</option>
+              <option value="HIGH" selected>High — Severe Hazard Warning</option>
+              <option value="MODERATE">Moderate — Advisory Alert</option>
+              <option value="LOW">Low — Information Bulletin</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-label" for="inputAlertDesc">Hazard Description *</label>
+          <textarea id="inputAlertDesc" class="admin-textarea" placeholder="Detail the active slope instability, rainfall triggers, and roadway obstructions..." rows="3" required></textarea>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-label" for="inputAlertActions">Safety Instructions / Recommended Actions *</label>
+          <textarea id="inputAlertActions" class="admin-textarea" placeholder="e.g., Avoid non-essential travel on NH-29; follow police diversions; stay clear of unstable cut slopes..." rows="3" required></textarea>
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-compact" data-close-modal="alertModal">Cancel</button>
+        <button type="button" class="btn-compact" id="btnSaveAlertDraft">Save as Draft</button>
+        <button type="button" class="btn-primary-admin" id="btnPublishAlertNow">Publish Immediately</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Assign Rescue Team Modal -->
+  <div class="admin-modal-backdrop" id="assignModal">
+    <div class="admin-modal-dialog" style="max-width: 520px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="assignModalHeaderTitle">Assign Incident to Rescue Force</h3>
+        <button type="button" class="admin-modal-close" data-close-modal="assignModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <div class="modal-box" style="margin-bottom: 12px;">
+          <div><strong id="assignReportId">#SG-...</strong></div>
+          <div style="font-size: 0.8125rem; color: var(--admin-text-secondary); margin-top: 2px;" id="assignReportLoc">Location</div>
+          <div id="assignDistanceBadge" style="display: none; margin-top: 6px;"></div>
+        </div>
+
+        <div class="modal-grid-2">
+          <div class="admin-form-group">
+            <label class="admin-label" for="selectAssignTeam">Designated Rescue Unit *</label>
+            <select id="selectAssignTeam" class="admin-select">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-label" for="selectAssignPriority">Mission Priority *</label>
+            <select id="selectAssignPriority" class="admin-select">
+              <option value="HIGH" selected>High — Urgent Deployment</option>
+              <option value="MEDIUM">Medium — Standard Response</option>
+              <option value="LOW">Low — Scheduled Inspection</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-label" for="assignInstructions">Command Instructions &amp; Objectives</label>
+          <textarea id="assignInstructions" class="admin-textarea" placeholder="Instructions for responding officer..." rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-compact" data-close-modal="assignModal">Cancel</button>
+        <button type="button" class="btn-primary-admin" id="btnConfirmAssign">Confirm Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. View Mission Details Modal -->
+  <div class="admin-modal-backdrop" id="missionDetailsModal">
+    <div class="admin-modal-dialog" style="max-width: 600px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="missionDetailsTitle">Rescue Mission Notes</h3>
+        <button type="button" class="admin-modal-close" data-close-modal="missionDetailsModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body" id="missionDetailsBody">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-compact" data-close-modal="missionDetailsModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Nearest Rescue Teams Modal -->
+  <div class="admin-modal-backdrop" id="nearestTeamsModal">
+    <div class="admin-modal-dialog" style="max-width: 720px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="nearestTeamsTitle">Nearest Eligible Rescue Teams</h3>
+        <button type="button" class="admin-modal-close" data-close-modal="nearestTeamsModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <div id="nearestIncidentBanner" class="nearest-header-box">
+          <!-- Rendered dynamically with incident location and coordinates -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 0.8125rem; font-weight: 700; color: var(--admin-text-secondary);">
+            Ranked by GPS Distance (Haversine Algorithm)
+          </span>
+          <span id="nearestTeamsCountBadge" class="tab-badge">0 Teams Found</span>
+        </div>
+
+        <div id="nearestTeamsList">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-compact" data-close-modal="nearestTeamsModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Rescue Team Profile & Verification Details Modal -->
+  <div class="admin-modal-backdrop" id="teamDetailsModal">
+    <div class="admin-modal-dialog" style="max-width: 650px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="teamDetailsTitle">Rescue Team Profile &amp; Verification</h3>
+        <button type="button" class="admin-modal-close" data-close-modal="teamDetailsModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body" id="teamDetailsBody">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="admin-modal-footer" id="teamDetailsFooter">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Core JavaScript Services -->
+  <script src="../js/core/config.js"></script>
+  <script src="../js/core/content.js"></script>
+  <script src="../js/core/format.js"></script>
+  <script src="../js/core/store.js"></script>
+  <script src="../js/core/api.js"></script>
+  <script src="../js/core/auth.js"></script>
+  <script src="../js/core/ui.js"></script>
+  <script src="../js/core/guard.js"></script>
+
+  <!-- Incident & Rescue Services -->
+  <script src="../js/services/reports-storage.js"></script>
+  <script src="../js/services/incidents-service.js"></script>
+
+  <!-- Admin Dashboard Page Controller -->
+  <script src="../js/pages/admin-dashboard.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+/* ==========================================================================
+   SlopeGuard — Design System Token Bridge (tokens.css)
+   Bridges LW.* Design System tokens to SlopeGuard's Master Earthy Minimal Palette
+   ========================================================================== */
+
+:root {
+  /* Brand Colours (Bound directly to SlopeGuard Earthy Minimal master variables) */
+  --lw-bg: var(--color-bg-main, #F8F6EE);
+  --lw-bg-secondary: var(--color-bg-secondary, #F8F6EE);
+  --lw-surface: var(--color-bg-elevated, #FFFFFF);
+  --lw-surface-glass: var(--color-glass-surface, #FFFFFF);
+  --lw-surface-glass-strong: var(--color-glass-strong, #FFFFFF);
+  --lw-border: var(--color-glass-border, #D9C9B2);
+  --lw-border-highlight: var(--color-highlight-border, #C96F4F);
+  
+  --lw-text: var(--color-text-primary, #2E3A2F);
+  --lw-text-secondary: var(--color-text-secondary, #4A5D48);
+  --lw-text-muted: var(--color-text-muted, #5E6F5C);
+  --lw-text-disabled: var(--color-text-disabled, #768774);
+
+  /* Primary Accent & CTA Tokens (Terracotta Accent) */
+  --lw-cta: var(--color-primary-lime, #C96F4F);
+  --lw-cta-hover: var(--color-hover-lime, #B85E3E);
+  --lw-cta-active: var(--color-active-lime, #A64E30);
+  --lw-on-cta: var(--color-primary-text, #FFFFFF);
+  
+  --lw-focus: var(--color-primary-lime, #C96F4F);
+  --lw-focus-on-dark: var(--color-secondary, #6B7F5B);
+
+  /* Risk levels — calibrated earthy tones preserving distinct semantic shapes & labels */
+  --lw-risk-low: #4D784E;
+  --lw-risk-low-bg: rgba(77, 120, 78, 0.12);
+  --lw-risk-low-fg: #2E5A30;
+
+  --lw-risk-mod: #C48829;
+  --lw-risk-mod-bg: rgba(196, 136, 41, 0.12);
+  --lw-risk-mod-fg: #8C5B12;
+
+  --lw-risk-high: #C96F4F;
+  --lw-risk-high-bg: rgba(201, 111, 79, 0.12);
+  --lw-risk-high-fg: #9E492B;
+
+  --lw-risk-crit: #B84333;
+  --lw-risk-crit-bg: rgba(184, 67, 51, 0.12);
+  --lw-risk-crit-fg: #8F2618;
+
+  --lw-risk-none: #7E8D7B;
+  --lw-risk-none-bg: rgba(126, 141, 123, 0.12);
+  --lw-risk-none-fg: #4D5C4A;
+
+  /* Information Source Badges (Earthy subdued tones) */
+  --lw-src-ai: #4A7A8C;
+  --lw-src-ai-bg: rgba(74, 122, 140, 0.12);
+  --lw-src-ai-fg: #2C5768;
+
+  --lw-src-reviewed: #4D784E;
+  --lw-src-reviewed-bg: rgba(77, 120, 78, 0.12);
+  --lw-src-reviewed-fg: #2E5A30;
+
+  --lw-src-official: #7A628C;
+  --lw-src-official-bg: rgba(122, 98, 140, 0.12);
+  --lw-src-official-fg: #543E65;
+
+  /* Typography — Manrope Modern Sans-Serif */
+  --lw-font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --lw-font-serif: 'Newsreader', Georgia, serif;
+  --lw-font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  --lw-font-captain: 'American Captain', Impact, 'Arial Black', sans-serif;
+
+  /* Spacing Scale */
+  --lw-s1: 4px;
+  --lw-s2: 8px;
+  --lw-s3: 12px;
+  --lw-s4: 16px;
+  --lw-s5: 24px;
+  --lw-s6: 32px;
+  --lw-s7: 48px;
+  --lw-s8: 64px;
+
+  /* Radius — Tailored rectangular & gently rounded */
+  --lw-r-sm: 4px;
+  --lw-r-md: 6px;
+  --lw-r-lg: 10px;
+  --lw-r-pill: 999px;
+
+  /* Soft Realistic Shadows (No heavy dark glows) */
+  --lw-shadow-sm: 0 2px 8px rgba(46, 58, 47, 0.05);
+  --lw-shadow-md: 0 6px 20px rgba(46, 58, 47, 0.08);
+  --lw-shadow-lg: 0 12px 32px rgba(46, 58, 47, 0.12);
+
+  /* Container */
+  --lw-container: 1240px;
+
+  /* Sticky & Fixed Header Heights & Scroll Offsets */
+  --nav-height: 76px;
+  --topbar-height: 68px;
+  --scroll-gap: 12px;
+  --scroll-offset-public: calc(var(--nav-height) + var(--scroll-gap));
+  --scroll-offset-dashboard: calc(var(--topbar-height) + var(--scroll-gap));
+}

@@ -1,0 +1,43 @@
+# Environment files & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build and runtime outputs
+target/
+**/target/
+data/uploads/
+**/data/uploads/
+*.log
+logs/
+scratch/
+
+# IDE configurations
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS specific files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Python virtual environment & cache
+__pycache__/
+*.pyc
+venv/
+.pytest_cache/
+
+# Large DEM GeoTIFF raster tiles (reproducible via automated acquisition scripts)
+ai-service/data/dem_tiles/
+*.tif
+*.tiff
+
+# Node dependencies
+node_modules/
+package-lock.json
+
